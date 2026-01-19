@@ -1,0 +1,21 @@
+
+body {
+    background-color: rgb(57, 127, 255);
+
+    }
+
+#inputs {
+        text-align: center;
+        background-color: rgb(127, 187, 255);
+        border: 2px solid;
+        padding: 20px;
+        margin: 20px;
+        border-radius: 10px;
+        font-family: Arial;
+        width: 20cm;
+        height: 43cm;
+        }
+
+p.dato {
+    text-align: right;
+}
