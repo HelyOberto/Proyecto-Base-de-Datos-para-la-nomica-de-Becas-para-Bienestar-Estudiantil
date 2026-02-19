@@ -1,389 +1,353 @@
 <!DOCTYPE html>
-<meta charset = "encoding UTF-8"> 
+<html lang="es">
 <head>
-    <h1> ESTUDIO SOCIO ECONÓMICO PARA BECAS </h1>
+    <meta charset="UTF-8">
+    <title>Estudio Socio Económico - UPTAG</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
-
-<!-- Cierre del codigo <> </> -->
-
-<style>
-    table, td, th
-    {border: solid black;
-    border-collapse: collapse; 
-
-    }
-
-    td, th { 
-        padding: 10px;
-    }
-
-</style>
-
-
 <body>
 
-    <div id="inputs"> 
+<div id="main-container">
+    <div class="header">
+        <h1 class="uptag-title">UPTAG</h1>
+        <p>Estudio Socio Económico para Becas</p>
+    </div>
+
+    <div class="progress-wrapper">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <form id="becaForm" action="finalizar.php" method="POST">
         
-    <br>
-    <h2> IDENTIFICACIÓN DEL ESTUDIANTE</h2>
+        <div class="step active">
+            <h2>1. Identificación del Estudiante</h2>
+            <div class="grid-container">
+                <div>
+                    <label>Nombres</label>
+                    <input type="text" name="nombres" required>
+                </div>
+                
+                <div>
+                    <label>Apellidos</label>
+                    <input type="text" name="apellidos" required>
+                </div>
+                
+                <div>
+                    <label>C.I.</label>
+                    <input type="text" name="cedula" required>
+                </div>
+                
+                <div>
+                    <label>Teléfono</label>
+                    <input type="tel" name="tel_estudiante">
+                </div>
+                
+                <div>
+                    <label>Fecha de Nacimiento</label>
+                    <input type="date" name="f_nac">
+                </div>
+                
+                <div>
+                    <label>Edad</label>
+                    <input type="number" id="edad" name="edad" min="1" max="120">
+                </div>
+                
+                <div><label>Estado Civil</label>
+                    <select name="edo_civil">
+                        <option>Soltero/a</option>
+                        <option>Casado/a</option>
+                        <option>Divorciado/a</option>
+                        <option>Viudo/a</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label>Email</label>
+                    <input type="email" name="correo">
+                </div>
 
-    <form action="/PROYECTO II/Informaciones de estudiantes.docx" method="post">
+                <div>
+                    <label>Codigo del Carnet de la Patria</label>
+                    <input type="text" name="C_Patria">
+                </div>
 
-        <form> 
-        <label> Nombres </label>
-        <input type="text" name="Nombres" class="dato" placeholder="Ingrese sus nombres">
-        <br>
+            </div>
+            
+            <div class="checkbox-group">
+                <label>
+                    ¿Posees un trabajo?<input type="checkbox" name="trabaja" id="check_trabaja"> 
+                </label>
+                <label>
+                    ¿Viajas frecuentemente? <input type="checkbox" name="viaja">
+                </label>
+                <label>
+                    ¿Te encuentras activo en tus estudios? <input type="checkbox" name="activo" id="check_activo">
+                </label>
+            </div>
 
-        <label>  Apellidos </label>
-        <input type="text" name="Apellidos" class="dato" placeholder="Ingrese sus apellidos">
-        <br>
-
-        <label> C.I. </label>
-        <input type="text" name="Cedula" class="dato" placeholder="Ingrese sus número de cedula">
-        <br>
-
-        <label> Numero telefónico</label>
-        <input type="tel" name="Telefono" class="dato" placeholder="Ingrese su numero de telefono">
-        <br>
-
-        <label> F. de nacimiento </label>
-        <input type="date" name="fecha-nacimiento" class="dato">
-        <br>
-
-        <label> Edad </label>
-        <input type="number" name="Edad" min="1" max="120" class="dato">
-        <br>
-
-        <label class="dato"> Edo. civil </label>
-        <select> 
-            <option value="Soltero(a)"> Soltero(a) </option>
-            <option value="Casado(a)"> Casado(a) </option>
-            <option value="Divorciado(a)"> Divorciado(a) </option>
-            <option value="Viudo(a)"> Viudo(a) </option>
-        </select>
-        <br>
-
-        <label> Correo electrónico </label>
-        <input type="email" name="gmail" placeholder="Ingrese su correo electronico">
-        <br>
-
-        <label> Código del carnet de la patria </label>
-        <input type="text" name="Carnet patria" placeholder="Ingrese su codigo del carnet de la patria">
-        <br>
-
-        <label> ¿Trabajas? </label>
-            <input type="checkbox" value="Sí">
-            <input type="checkbox" value="No">
-        <br>
-
-        <label> ¿Viajas frecuentemente? </label>
-            <input type="checkbox" value="Sí">
-            <input type="checkbox" value="No">
-        <br>
-
-        <label> ¿Te encuentras activo en tus estudios? </label>
-            <input type="checkbox" value="Sí">
-            <input type="checkbox" value="No">
-        <br>
-
-        <button type="reset"> Borrar datos </button>
-
-        </form>
-
-        <h2> RESIDENCIA/VIVIENDA DEL ESTUDIANTE </h2>
-
-        <form>  
-            <Label> Tipo de residencia </Label>
-            <select> 
-                <option> --Residencia-- </option>
-                <option value="Familiar" name="Residencia familiar"> Familiar </option>
-                <option value="Particular" name="Residencia particular"> Particular </option>
-                <option value="Universitaria" name="Residencia universitaria"> Universitaria </option>
-                <option value="Otro" name="Otra residencia"> Otro... </option>
-            </select>
-            <br> 
-
-            <label> Tipo de vivienda </label>
-            <select>
-                <opgroup> 
-                    <option value=""> --Vivienda-- </option>
-                    <option value="Casa residencial" name="Casa residencial"> Casa residencial</option>
-                    <option value="Apartamento residencial" name="Apartamento residencial"> Apartamento residencial </option>
-                    <option value="Casa de interés social" name="Casa de interés social"> Casa de interés social </option>
-                    <option value="Apartamento de interés social" name="Apartamento de interés social"> Apartamento de interés social </option>
-                </opgroup>
-            </select>
-            <br>
-
-            <label> Tipo de localidad </label>
-            <select> 
-                <option value=""> --Localidad--</option>
-                <option value="Rural"> Rural </option>
-                <option value="Ranco"> Rancho </option>
-                <option value="Urbano"> Urbano </option>
-                <option value="Otro"> Otro... </option>
-            </select>
-            <br>
-
-            <label> Régimen de propiedad </label>
-            <select>
-                <option value=""> --Propiedad-- </option>
-                <option value="Propia"> Propia </option>
-                <option value="Alquilada"> Alquilada </option>
-                <option value="Cedida"> Cedida </option>
-                <option value="Comodato"> Comodato </option>
-            </select>
-            <br>
-
-            <label> Dirección local </label>
-            <input type="text" name="D. local" placeholder="..."> </input>
-            <br>
-
-            <label> Dirección de procedencia </label>
-            <input type="text" name="D. procedencia" placeholder="..."> </input>
-            <br>
-
-            <label> Teléfono local </label>
-            <input type="tel" name="Tel. local" placeholder="0424*******"> </input>
-            <br>
-
-            <label> Teléfono de procedencia </label>
-            <input type="tel" name="Tel. procedencia" placeholder="0428*******"> </input>
-            <br>
-
-            <label> ¿Paga esta vivienda? </label>
-            <select>
-                <option value=""> ¿Sí o no? </option>
-                <option value="Sí"> Sí </option> 
-                <option value="No"> No </option>
-            </select>
-            <br>
-
-            <button type= reset> Borrar datos </button>
-            <br>
-
-        </form> 
-
-        <h2> INFORMACIÓN DEL TRABAJO (SI POSEE) </h2>
-
-        <form>
-
-            <label> ¿Qué trabajas? </label>
-            <input type="text" name="Trabajo" placeholder="Escribe aquí...">
-            <br>
-
-            <label> ¿En dónde? </label>
-            <input type="text" name="Sitio" placeholder="Escribe aquí...">
-            <br>
-
-            <label> Ingresos </label>
-            <input type="number" name="Ingresos" placeholder="Monto" min="0" max="10000">
-            <br>
-
-            <label> ¿De quién recibe los aportes el bachiller? </label>
-            <input type="text" name="Aportador" placeholder="Escribe aquí...">
-            <br>
-
-            <label> ¿Cuánto le asignan en bolívares? </label>
-            <input type="number" name="Bolivares" placeholder="Monto">
-            <br>
-
-            <button type= reset> Borrar datos </button>
-            <br>
-
-        </form>
-
-        <h2> INFORMACIÓN DEL PNF DE ESTUDIO </h2> 
-
-        <label> Nombre de la carrera </label>
-
-        <form> 
-        <select>
-            <option value=""> --Carrera-- </option>
-            <option value="Agroalimentacion"> Agroalimentación </option>
-            <option value="Quimica"> Química </option>
-            <option value="Procesos Quimicos"> Procesos Químicos </option>
-            <option value="Instrumentacion y Control"> Instrumentación y Control </option>
-            <option value="Electricidad"> Electricidad </option>
-            <option value="Electronica"> Electrónica </option>
-            <option value="Construccion civil"> Construcción civil </option>
-            <option value="Contaduria Publica"> Contaduría Pública </option>
-            <option value="Informatica"> Informática </option>
-            <option value="Administracion"> Administración </option>
-            <option value="Mecanica"> Mecánica </option>
-
-            <!-- Se podria organizar mejor como un grupo de opciones, cuales son las ingenierias y licenciaturas-->
-
-        </select>
-        <br>
-
-        <label> Fecha de ingreso </label>
-        <input type="date">
-        <br>
-
-        <label> Código de estudiante </label>
-        <input type="text" placeholder="Por ejemplo: INT234854">
-        <br>
-
-        <label> Trayecto actual </label>
-        <select> 
-            <option value=""> --Trayecto-- </option>
-            <option value="Trayecto inicial"> Inicial </option>
-            <option value="Trayecto 1"> 1 </option>
-            <option value="Trayecto 2"> 2 </option>
-            <option value="Trayecto 3"> 3 </option>
-            <option value="Trayecto 4"> 4 </option>
-        </select>
-        <br>
-
-        <label> Trimestre actual </label>
-        <select> 
-            <option value=""> --Trimestre-- </option>
-            <option value="Trimestre 1"> 1 </option>
-            <option value="Trimestre 2"> 2 </option>
-            <option value="Trimestre 3"> 3 </option>
-        </select>
-        <br>
-
-        <button type="reset"> Borrar datos </button>
-
-        </form>
-
-        <br>
-        <!-- Como se puede quitar la seleccion de trimestre en el caso del trayecto inicial-->
-        <!-- Como se puede colocar semestre de acuerdo a la carrera en el caso de automotriz-->
-
-        <h2> MATERIAS INSCRITAS EN EL ACTUAL TRIMESTRE </h2>
-        <ol>
-            <form>
-            <li> <input type="text" name="Nombre materia" placeholder="Nombre de la materia..."> </li>
-            <br>
-            <li> <input type="text" name="Nombre materia" placeholder="Nombre de la materia..."> </li>
-            <br>
-            <li> <input type="text" name="Nombre materia" placeholder="Nombre de la materia..."> </li>
-            <br>
-            <li> <input type="text" name="Nombre materia" placeholder="Nombre de la materia..."> </li>
-            <br>
-            <li> <input type="text" name="Nombre materia" placeholder="Nombre de la materia..."> </li>
-            <br>
-            <li> <input type="text" name="Nombre materia" placeholder="Nombre de la materia..."> </li>
-            <br>
-            <li> <input type="text" name="Nombre materia" placeholder="Nombre de la materia..."> </li>
-            <br>
-            <li> <input type="text" name="Nombre materia" placeholder="Nombre de la materia..."></li>
-            <br>
-            <button type="reset"> Borrar datos </button>
-            </form>
-        </ol>
-
-        <h2> RECORD ACADÉMICO DEL ANTERIOR TRIMESTRE </h2>
-
-        <form>
-
-        <label> Número de materias inscritas </label>
-        <input type="number" name="Inscritas" min="0" max="8">
-        <br> 
-
-        <label> Número de materias aprobadas </label>
-        <input type="number" name="Aprobadas" min="0" max="8">
-        <br> 
-
-        <label> Número de materias inasistentes </label>
-        <input type="number" name="Inasistentes" min="0" max="8">
-        <br> 
-
-        <label> Índice del trimestre </label>
-        <input type="text" name="Inscritas">
-        <br> 
-
-        <button type="reset"> Borrar datos </button> 
-        <br> 
-
-        </form>
-        <br>
+            <div class="nav-buttons"><button type="button" class="btn-next">Siguiente</button></div>
         </div>
 
-        <h2> INFORMACION DE LOS FAMILIARES DEL ESTUDIANTE </h2>
-        <br>
-        <form>
+        <div class="step">
+            <h2>2. Residencia / Vivienda</h2>
 
-            <table> 
+            <div class="grid-container">
 
-                <thead> 
-                    <th> Nombre y apellido </th>
-                    <th> Parentesco </th>
-                    <th> Edad </th>
-                    <th> Instrucción </th> 
-                    <th> Ocupación </th>
-                    <th> Ingreso </th>
-                </thead>
+                <div>
+                    <label>Tipo de residencia</label>
+                        <select name="t_res">
+                            <option>Familiar</option>
+                            <option>Particular</option>'
+                            <option>Universitaria</option>
+                            <option>Otro...</option>
+                        </select>
+                </div>
 
-                <tr>
-                    <td> <input type="text" name="Nombre y apellido" placeholder="Ingresa nombre y apellido..."> </input> </td>
-                    <td> <input type=text name="Parentesco" placeholder="Por ejemplo: mama, papa..."> </input> </td>
-                    <td> <input type="number" name="Edad"  min="0" max="120"> </input> </td>
-                    <td> <input type="text" name="Instruccion" placeholder="Por ejemplo: Licenciado(a) en administracion..."> </input> </td>
-                    <td> <input type="text" name="Ocupacion" placeholder="Por ejemplo: asistente virtual..."> </input> </td>
-                    <td> <input type="number" name="Ingreso" min="0"> Dolares </td>
-                </tr>
+                <div>
+                    <label>Tipo de vivienda</label>
+                        <select name="t_viv">
+                            <option>Casa residencial</option>
+                            <option>Apartamento residencial</option>
+                            <option>Casa de interés</option>
+                            <option>Casa de interés social</option>
+                            <option>Apartamentode interés social</option>
+                        </select>
+                </div>
+                
+                <div>
+                    <label>Tipo de localidad</label>
+                        <select name="t_loc">
+                            <option>Rural</option>
+                            <option>Rancho</option>
+                            <option>Urbano</option>
+                            <option>Otro...</option>
+                        </select>
+                </div>
+                
+                <div>
+                    <label>Régimen de propiedad</label>
+                        <select name="r_prop">
+                            <option>Propia</option>
+                            <option>Alquilada</option>
+                            <option>Cedida</option>
+                            <option>Comodato</option>
+                        </select>
+                </div>
+                
+                <div>
+                    <label>Dirección Local</label>
+                    <input type="text" name="dir_local">
+                </div>
 
-                <tr>
-                    <td> <input type="text" name="Nombre y apellido" placeholder="Ingresa nombre y apellido..."> </input> </td>
-                    <td> <input type=text name="Parentesco" placeholder="Por ejemplo: mama, papa..."> </input> </td>
-                    <td> <input type="number" name="Edad"  min="0" max="120"> </input> </td>
-                    <td> <input type="text" name="Instruccion" placeholder="Por ejemplo: Licenciado(a) en administracion..."> </input> </td>
-                    <td> <input type="text" name="Ocupacion" placeholder="Por ejemplo: asistente virtual..."> </input> </td>
-                    <td> <input type="number" name="Ingreso" min="0"> Dolares </td>
-                </tr>
+                <div>
+                    <label>Dirección de procedencia</label>
+                    <input type="text" name="dir_procedencia">
+                </div>
+                
+                <div>
+                    <label>Telefono Local</label>
+                    <input type="tel" name="tel_local">
+                </div>
 
-                <tr>
-                    <td> <input type="text" name="Nombre y apellido" placeholder="Ingresa nombre y apellido..."> </input> </td>
-                    <td> <input type=text name="Parentesco" placeholder="Por ejemplo: mama, papa..."> </input> </td>
-                    <td> <input type="number" name="Edad"  min="0" max="120"> </input> </td>
-                    <td> <input type="text" name="Instruccion" placeholder="Por ejemplo: Licenciado(a) en administracion..."> </input> </td>
-                    <td> <input type="text" name="Ocupacion" placeholder="Por ejemplo: asistente virtual..."> </input> </td>
-                    <td> <input type="number" name="Ingreso" min="0"> Dolares </td>
-                </tr>
+                <div>
+                    <label>Telefono de procedencia</label>
+                    <input type="tel" name="tel_local">
+                </div>
+                
+                <div class="checkbox-group">
+                    <label>
+                        ¿Paga usted la vivienda? <input type="checkbox" name="trabaja">
+                    </label>
+                </div>
+            
+            </div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
 
-                <tr>
-                    <td> <input type="text" name="Nombre y apellido" placeholder="Ingresa nombre y apellido..."> </input> </td>
-                    <td> <input type=text name="Parentesco" placeholder="Por ejemplo: mama, papa..."> </input> </td>
-                    <td> <input type="number" name="Edad"  min="0" max="120"> </input> </td>
-                    <td> <input type="text" name="Instruccion" placeholder="Por ejemplo: Licenciado(a) en administracion..."> </input> </td>
-                    <td> <input type="text" name="Ocupacion" placeholder="Por ejemplo: asistente virtual..."> </input> </td>
-                    <td> <input type="number" name="Ingreso" min="0"> Dolares </td>
-                </tr>
+        <div class="step">
+            <h2>3. Información Laboral</h2>
+            <div class="grid-container">
+                <div><label>¿Cual es su trabajo?</label><input type="text" name="cargo"></div>
+                <div><label>¿En dónde trabaja?</label><input type="text" name="empresa"></div>
+                <div><label>Ingresos ($)</label><input type="number" name="ingresos" max="10000"></div>
+                <div><label>¿De quién recibe los aportes el bachiller?</label><input type="text" name="aportador"></div>
+                <div><label>Monto (Bs.)</label><input type="number" name="monto_bs"></div>
+            </div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
 
-                <tr>
-                    <td> <input type="text" name="Nombre y apellido" placeholder="Ingresa nombre y apellido..."> </input> </td>
-                    <td> <input type=text name="Parentesco" placeholder="Por ejemplo: mama, papa..."> </input> </td>
-                    <td> <input type="number" name="Edad"  min="0" max="120"> </input> </td>
-                    <td> <input type="text" name="Instruccion" placeholder="Por ejemplo: Licenciado(a) en administracion..."> </input> </td>
-                    <td> <input type="text" name="Ocupacion" placeholder="Por ejemplo: asistente virtual..."> </input> </td>
-                    <td> <input type="number" name="Ingreso" min="0"> Dolares </td>
-                </tr>
+        <div class="step">
+            <h2>4. Información del PNF</h2>
+            <div class="grid-container">
+                
+                <div class="full-width">
+                    <label>Carrera</label>
+                    <select name="carrera">
+                        <option value="agroalimentacion">Agroalimentación</option>
+                        <option value="quimica">Química</option>
+                        <option value="procesos_quimicos">Procesos Químicos</option>
+                        <option value="instrumentacion_control">Instrumentación y Control</option>
+                        <option value="electricidad">Electricidad</option>
+                        <option value="electronica">Electrónica</option>
+                        <option value="construccion_civil">Construcción Civil</option>
+                        <option value="contaduria_publica">Contaduría Pública</option>
+                        <option value="informatica">Informática</option>
+                        <option value="administracion">Administración</option>
+                        <option value="mecanica">Mecánica</option>
+                    </select>
+                </div>
 
-            </table>
+                <div><label>Fecha Ingreso</label><input type="date" name="f_ingreso"></div>
+                
+                <div><label>Código de estudiante</label><input type="text" name="cod_est"></div>
+                
+                <div>
+                    <label>Trayecto actual</label>
+                    <select name="trayecto">
+                        <option>Inicial</option>
+                        <option>Primero</option>
+                        <option>Segundo</option>
+                        <option>Tercero</option>
+                        <option>Cuarto</option>
+                    </select>
+                </div>
 
-        </form>
-        <br>
+                <div>
+                    <label>Trimestre</label>
+                    <select name="trimestre">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                    </select>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
 
-        <h2> DATOS ADICIONALES </h2>
-        <form>
-            <textarea
-                rows="6"
-                cols="50"
-                placeholder="Ingresa algún dato opcional por aquí...(500 carácteres máximo)"
-                maxlenght="500">
-            </textarea>
-            <button type="delete"> </button>
-        </form>
-        <br>
-        
-        <button type="submit"> Enviar Formulario </button>
-        <button type="reset"> Eliminar todo </button>
+        <div class="step">
+            <h2>5. Materias Inscritas</h2>
+            <div id="materias-container" style="border: 1px solid #ccc; padding: 10px; max-height: 200px; overflow-y: auto; border-radius: 5px;">
+                <div class="materia-item"><input type="checkbox" name="materias" value="proyectoi"> Proyecto Socio-Integrador I</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="matematica"> Matemática</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="formacion_critica"> Formación Crítica / Sociocrítica</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="algoritmica"> Algorítmica y Programación</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="arquitectura"> Arquitectura del Computador</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="contabilidad"> Contabilidad I</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="ingles"> Idiomas (Inglés)</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="quimica_basica"> Química Básica</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="dibujo_mecanico"> Dibujo Mecánico</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="fisica"> Física Aplicada</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="redes"> Redes de Computadora</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="electrotecnia"> Electrotecnia</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="mantenimiento"> Mantenimiento</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="deporte"> Deporte y Recreación</div>
+            </div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>6. Récord Académico Anterior</h2>
+            <div class="grid-container">
+                <div><label>Nro. Materias inscritas</label><input type="number" name="m_ins" min="0" max="8"></div>
+                <div><label>Materias aprobadas</label><input type="number" name="m_apr" min="0" max="8"></div>
+                <div><label>Materias inasistentes</label><input type="number" name="m_ina" min="0" max="8"></div>
+                <div><label>Índice del trimestre</label><input type="text" id="record_indice" name="indice_ant"></div>
+            </div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="contenedor-seccion">
+                <h2>7. Familiares del Estudiante</h2>
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table id="tabla-familiares">
+                            <thead>
+                                <tr>
+                                    <th>Nombre y Apellido</th>
+                                    <th>Parentesco</th>
+                                    <th>Edad</th>
+                                    <th>Instrucción</th>
+                                    <th>Ocupación</th>
+                                    <th>Ingreso ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpo-tabla">
+                                <tr class="fila-familiar">
+                                    <td><input type="text" name="f_nom[]" required placeholder="Ej: Maria Perez"></td>
+                                    <td><input type="text" name="f_par[]" required placeholder="Ej: Madre"></td>
+                                    <td><input type="number" name="f_eda[]" required min="0" max="120"></td>
+                                    <td><input type="text" name="f_ins[]" placeholder="Nivel educativo"></td>
+                                    <td><input type="text" name="f_ocu[]" placeholder="Trabajo"></td>
+                                    <td><input type="number" name="f_ing[]" step="0.01" placeholder="0.00"></td>
+                                    <button type="button" class="btn-remove oculto" title="Eliminar">&times;</button>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="controles-tabla">
+                    <button type="button" id="btn-agregar" class="btn-add">+ Añadir Familiar</button>
+                    <small id="aviso-limite" class="oculto">Límite de 5 familiares alcanzado.</small>
+                </div>
+        </div>
+
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>8. Datos Adicionales</h2>
+            <textarea name="comentarios" rows="4" placeholder="Observaciones máximas 500 caracteres..."></textarea>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Verifica que todos los datos sean correctos</h2>
+            <div id="resumen" class="resumen-box"></div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Corregir</button>
+                <button type="button" class="btn-next">Enviar datos</button>
+            </div>
+        </div>
+
+        <div class="step" id="step-success">
+            <div style="text-align: center; padding: 40px 20px;">
+                <div class="success-icon">✓</div>
+                <h2 style="font-size: 1.5rem; margin-top: 20px;">¡Envío Exitoso!</h2>
+                <p>Los datos han sido enviados exitosamente al sistema de UPTAG.</p>
+                <p style="color: #666; font-size: 0.9rem;">Pronto recibirá un correo con el comprobante de su solicitud.</p>
+                
+                <button type="button" class="btn-next" onclick="location.reload()" style="margin-top: 30px;">
+                    Realizar otra solicitud
+                </button>
+            </div>
+    </div>
 
     </form>
+</div>
 
+<script src="script.js"></script>
 </body>
+</html>
