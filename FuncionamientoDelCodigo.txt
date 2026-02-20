@@ -1,0 +1,66 @@
+SISTEMA: Registro y Validación de Becas Estudiantiles
+OBJETIVO: Gestionar la captura, validación y verificación de datos socioeconómicos de aspirantes.
+
+1. ARQUITECTURA DEL FRONTEND (La Interfaz)
+El sistema utiliza una técnica llamada Single Page Application (SPA) simulada. Esto significa que el usuario siente que cambia de página, pero en realidad el navegador nunca recarga el sitio; solo ocultamos y mostramos piezas de código.
+
+A. El Sistema de Contenedores (.step)
+Cada sección del formulario es un "paso". En el HTML, todos estos pasos existen al mismo tiempo, pero gracias al CSS:
+
+Los que no estamos usando tienen un estilo de display: none (invisibles y no ocupan espacio).
+
+El paso actual tiene la clase .active, que cambia el estilo a display: block (se vuelve visible).
+
+B. La Inteligencia de Navegación (JavaScript)
+El archivo JS actúa como un director de orquesta. Utiliza una variable llamada currentStep que funciona como un puntero:
+
+Validación antes de avanzar: Cada vez que presionas "Siguiente", el código no te deja pasar ciegamente. Ejecuta la función validarPasoActual(). Si, por ejemplo, no marcaste que eres estudiante activo, el código lanza un alert() y detiene la ejecución usando un return false.
+
+Lógica de Bifurcación (Saltos): El sistema tiene "conciencia" de las respuestas. Si en el paso de datos personales indicas que no trabajas, el código detecta el estado del checkbox. Al darle a siguiente, en lugar de hacer 0+1=1, el código hace un salto forzado al paso 3, ahorrándole al usuario llenar datos innecesarios.
+
+C. Gestión de Memoria Dinámica (Tabla de Familiares)
+Esta es la parte más compleja del frontend. No usamos campos fijos porque no sabemos cuántos familiares tiene cada alumno.
+
+Inserción de Nodos: Al pulsar "+", JS usa insertRow() para crear un nuevo espacio en la memoria del navegador y rellena ese espacio con una cadena de texto HTML que contiene los inputs.
+
+Delegación de Eventos: Como los botones de "Eliminar" se crean después de que la página cargó, el código usa "delegación". El "padre" (la tabla) escucha los clics de sus "hijos" (los botones nuevos) y decide cuál eliminar basándose en el elemento que recibió el clic.
+
+2. ARQUITECTURA DEL BACKEND (El Servidor PHP)
+Cuando el formulario finalmente se envía, el control pasa de la computadora del usuario al servidor de la institución.
+
+A. Recepción y Sanitización
+PHP recibe un "super-arreglo" llamado $_POST.
+
+Datos Simples: $nombres, $edad, etc.
+
+Datos en Arreglo: Los familiares llegan como listas (ej. una lista con todos los nombres de los hermanos). Esto permite que PHP pueda recorrerlos con un ciclo foreach para guardarlos uno por uno.
+
+B. Reglas de Negocio (El Filtro Ético)
+Aquí es donde se decide la aptitud del bachiller. El código aplica filtros lógicos:
+
+Filtro de Edad: $edad < 18. Bloquea a menores de edad por temas legales de la beca.
+
+Filtro Académico: $indice < 12. Es el requisito de rendimiento.
+
+Filtro de Estatus: $activo == "No". Solo para estudiantes vigentes.
+
+C. El Array de Errores
+En lugar de detener el programa al primer error, PHP es "paciente". Va acumulando todos los problemas encontrados en una lista ($errores[]). Solo al final revisa si la lista está vacía. Si no lo está, genera una página de rechazo personalizada listando cada falla.
+
+3. FLUJO DE DATOS Y EXPERIENCIA DE USUARIO (UX)
+Entrada de Datos: El usuario interactúa con los inputs. JS valida en tiempo real (formato de correo, campos vacíos).
+
+Sincronización de Barra de Progreso: Cada vez que el índice del paso cambia, la barra de progreso se estira visualmente usando cálculos de porcentaje.
+
+Paso de Resumen (El Espejo): Antes de enviar, el sistema extrae los datos de los campos (incluso los de la tabla dinámica) y los "espejea" en una vista previa. Esto evita errores de transcripción.
+
+Confirmación Final: Al hacer clic en "Confirmar", se dispara el submit.
+
+Procesamiento y Respuesta: PHP procesa, valida y devuelve un mensaje de éxito o una lista de errores.
+
+4. SEGURIDAD Y BUENAS PRÁCTICAS
+Prevención de doble envío: El botón de envío se desactiva tras el primer clic para evitar registros duplicados.
+
+Validación Espejo: Se valida tanto en JS (para rapidez del usuario) como en PHP (por seguridad, ya que el JS se puede desactivar).
+
+Uso de Nombres de Array: Al usar name="f_nom[]", facilitamos que el backend procese grupos de datos relacionados de forma masiva y limpia.
