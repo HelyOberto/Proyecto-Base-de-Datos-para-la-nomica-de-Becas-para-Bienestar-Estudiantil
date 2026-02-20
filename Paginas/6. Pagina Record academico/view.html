@@ -1,0 +1,21 @@
+<div class="step-content">
+    <h2>6. Récord Académico Anterior</h2>
+    <div class="grid-container">
+        <div>
+            <label>Nro. Materias inscritas</label>
+            <input type="number" name="m_ins" id="m_ins" readonly style="background-color: #f0f0f0; cursor: not-allowed;">
+        </div>
+        <div>
+            <label>Materias aprobadas</label>
+            <input type="number" name="m_apr" id="m_apr" min="0" max="8" placeholder="0" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
+        <div>
+            <label>Materias inasistentes</label>
+            <input type="number" name="m_ina" id="m_ina" min="0" max="8" placeholder="0" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+        </div>
+        <div>
+            <label>Índice del trimestre</label>
+            <input type="text" id="record_indice" name="indice_ant" placeholder="Ej: 15.5" oninput="this.value = this.value.replace(/[^0-9.]/g, '')">
+        </div>
+    </div>
+</div>

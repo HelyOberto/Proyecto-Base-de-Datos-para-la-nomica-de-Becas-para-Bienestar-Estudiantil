@@ -1,3 +1,4 @@
+/* --- BASE GENERAL --- */
 body {
     background-color: #eee;
     font-family: Arial, sans-serif;
@@ -11,16 +12,23 @@ body {
 #main-container {
     background: white;
     width: 95%;
-    max-width: 850px; /* Un poco más ancho para la tabla */
+    max-width: 850px;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     border-top: 6px solid #FF6600;
 }
 
-h2 { color: #FF6600; font-size: 1.1rem; margin-top: 0; }
+h2 { 
+    color: #FF6600; 
+    font-size: 1.1rem; 
+    margin-top: 0; 
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 8px; 
+    margin-bottom: 15px; 
+}
 
-/* Grid y Formularios */
+/* --- GRID Y FORMULARIOS --- */
 .grid-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -30,30 +38,94 @@ h2 { color: #FF6600; font-size: 1.1rem; margin-top: 0; }
 
 .full-width { grid-column: span 2; }
 
-label { font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 2px; }
+label { 
+    font-size: 0.85rem; 
+    font-weight: bold; 
+    display: block; 
+    margin-bottom: 2px; 
+}
+
 input, select, textarea { 
     width: 100%; 
-    padding: 6px; 
+    padding: 8px; 
     border: 1px solid #ccc; 
     border-radius: 4px;
     font-size: 0.9rem;
     box-sizing: border-box;
 }
 
-/* Barra de progreso */
+/* --- PÁGINA 5 (LISTADO DE MATERIAS) --- */
+#materias-container {
+    background: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    max-height: 250px; 
+    overflow-y: auto;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.materia-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 0.85rem;
+}
+
+.materia-item:last-child { border-bottom: none; }
+
+.materia-item input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+}
+
+/* --- PÁGINA 8 (TEXTAREA) --- */
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* --- BARRA DE PROGRESO --- */
 .progress-wrapper { background: #ddd; height: 6px; border-radius: 3px; margin-bottom: 20px; }
 .progress-bar { background: #FF6600; width: 0%; height: 100%; transition: 0.3s; }
 
-/* Pasos */
-.step { display: none; }
-.step.active { display: block; }
+/* --- NAVEGACIÓN Y BOTONES --- */
+.nav-buttons { 
+    margin-top: 20px; 
+    display: flex; 
+    justify-content: space-between; 
+    gap: 10px; /* Espacio uniforme entre botones */
+}
 
-/* Botones de Navegación */
-.nav-buttons { margin-top: 15px; display: flex; justify-content: space-between; }
-button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+/* Forzamos a que todos los botones de la navegación sean del mismo tamaño */
+.nav-buttons button { 
+    flex: 1; 
+    padding: 12px 20px; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
 .btn-next { background: #FF6600; color: white; }
 .btn-prev { background: #999; color: white; }
-.btn-submit { background: #28a745; color: white; width: 100%; }
+
+/* Botón de Reinicio (Página 9) */
+.btn-reset { 
+    background-color: #dc3545; 
+    color: white; 
+}
+
+.btn-reset:hover { background-color: #a71d2a; }
+
+/* Botón de envío final */
+.btn-submit { 
+    background: #28a745; 
+    color: white; 
+}
 
 /* --- SECCIÓN TABLA DINÁMICA --- */
 .table-responsive {
@@ -63,7 +135,7 @@ button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; 
 }
 
 table { 
-    width: 100%; 
+    width: 95.5%; 
     border-collapse: collapse; 
 }
 
@@ -79,19 +151,18 @@ th, td {
     text-align: left; 
 }
 
-/* Fila especial para posicionar el botón fuera */
 tr { position: relative; }
 
 .btn-add { 
     background-color: #28a745; 
     color: white; 
     margin-top: 10px;
+    flex: none !important; /* El botón de añadir no debe estirarse como los de navegación */
 }
 
-/* Botón de eliminar "Fuera" de la tabla */
 .btn-remove { 
     position: absolute;
-    right: -35px; /* Lo saca del borde de la tabla */
+    right: -35px;
     top: 50%;
     transform: translateY(-50%);
     background-color: #dc3545; 
@@ -107,19 +178,15 @@ tr { position: relative; }
 .controles-tabla { display: flex; align-items: center; gap: 15px; }
 #aviso-limite { color: #dc3545; font-size: 0.8rem; font-weight: bold; }
 
-/* Utilidades */
-.oculto { display: none !important; }
-.deshabilitado { opacity: 0.5; cursor: not-allowed; }
-.resumen-box { height: 250px; overflow-y: auto; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; font-size: 0.8rem; }
-
-/* Estilos para el Resumen Final */
+/* --- RESUMEN FINAL (Página 9) --- */
 .resumen-box {
-    height: 350px; /* Un poco más alto para mayor comodidad */
+    height: 350px;
     overflow-y: auto;
     background: #ffffff;
     padding: 20px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
+    text-align: left;
 }
 
 .resumen-seccion {
@@ -134,6 +201,9 @@ tr { position: relative; }
     margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 1px;
+    border-bottom: 2px solid #FF6600;
+    display: inline-block;
+    padding-right: 15px;
 }
 
 .resumen-seccion p {
@@ -142,25 +212,7 @@ tr { position: relative; }
     color: #333;
 }
 
-.tabla-resumen-mini {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
-    margin-top: 10px;
-}
-
-.tabla-resumen-mini th {
-    background: #f8f9fa;
-    text-align: left;
-    padding: 5px;
-    border: 1px solid #ddd;
-}
-
-.tabla-resumen-mini td {
-    padding: 5px;
-    border: 1px solid #ddd;
-}
-
+/* --- ÉXITO (Página 10) --- */
 .success-icon {
     width: 80px;
     height: 80px;
@@ -175,3 +227,26 @@ tr { position: relative; }
     justify-content: center;
     box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
 }
+
+/* --- INPUTS CON SUFIJO --- */
+.input-symbol-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-symbol-wrapper input {
+    padding-right: 40px;
+}
+
+.input-symbol-wrapper .suffix {
+    position: absolute;
+    right: 12px;
+    font-weight: bold;
+    pointer-events: none;
+    font-size: 0.9rem;
+}
+
+/* --- UTILIDADES --- */
+.oculto { display: none !important; }
+.deshabilitado { opacity: 0.5; cursor: not-allowed; }
