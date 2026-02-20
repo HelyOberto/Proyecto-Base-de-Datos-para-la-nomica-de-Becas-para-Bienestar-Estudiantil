@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<meta charset = "utf-8">
+<title> Identificación del estudiante </title>
+<head>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<h1 class= "headers"> IDENTIFICACIÓN DEL ESTUDIANTE </h1>
+
+<body>
+
+    <div id="inputs_2"> 
+        
+        <header class="header">
+            <div class="container">
+                <div class="btn-menu">
+                    <label for="btn-menu" class="icon-menu"> ☰ </label>
+                </div>
+                    
+        </header>
+            
+        <br>
+
+        <form method="post">
+
+            <label> 
+                Nombres 
+                <input type="text" name="Nombres" class="dato" placeholder="Ingrese sus nombres">
+            </label>
+            
+
+            <label> 
+                Apellidos 
+                <input id="txt_apellidos" type="text" name="Apellidos" class="dato" placeholder="Ingrese sus apellidos">
+            </label>
+            
+            <br> <br> <hr> <br> <br>
+
+            <label> 
+                C.I. 
+                <input type="text" name="Cedula" class="dato" placeholder="Ingrese sus número de cedula">
+            </label>
+            
+
+            <label> 
+                Numero telefónico
+                <input id= "num_tel" type="tel" name="Telefono" class="dato" placeholder="Ingrese su numero de telefono">
+            </label>
+            
+            <br> <br> <br> <br>
+
+            <label> 
+                F. de nacimiento 
+                <input type="date" name="fecha-nacimiento" class="dato">
+            </label>
+            
+
+            <label> 
+                Edad 
+                <input type="number" name="Edad" min="1" max="120" class="dato"></label>
+            
+            <br> <br> <br> <br>
+
+            <label> 
+                Correo electrónico 
+                <input type="email" name="gmail" placeholder="Ingrese su correo electronico">
+            </label>
+            <br> <br> <br> <br>
+
+            <label class="dato"> Edo. civil 
+                <select> 
+                    <option value="Ninguno"> Selecciona: </option>
+                    <option value="Soltero(a)"> Soltero(a) </option>
+                    <option value="Casado(a)"> Casado(a) </option>
+                    <option value="Divorciado(a)"> Divorciado(a) </option>
+                    <option value="Viudo(a)"> Viudo(a) </option>
+                </select>
+            </label>
+
+            <label for="txt_carnet"> Código del carnet de la patria </label>
+            <input id="txt_carnet" type="text" name="Carnet patria" placeholder="Ingrese su codigo del carnet de la patria">
+            <br> <br> <hr> <br> <br>
+
+        
+            <label> ¿Trabajas? </label>
+                Sí <input type="radio" name= "Trabajo" value="Sí">
+                No <input type="radio" name= "Trabajo" value="No">
+            <br> <br>
+
+            <label> ¿Viajas frecuentemente? </label>
+                Sí <input type="radio" name= "Viaja" value="Sí">
+                No <input type="radio" name= "Viaja" value="No">
+
+            <br> <br>
+
+            <label> ¿Te encuentras activo en tus estudios? </label>
+                Sí <input type="radio" name= "Activo" value="Sí">
+                No <input type="radio" name= "Activo" value="No">
+            <br> <br> <hr> <br> 
+ 
+            <button type="button" onclick="window.location.href='1. Inicio.html'"> Volver a inicio </button> 
+            <button type="reset"> Borrar datos </button>
+            <button type="button" onclick="window.location.href='3. Residencia del estudiante.html'"> Siguiente </button> 
+            
+            <br>
+
+        </form>
+
+    </div>
+
+
+<input type="checkbox" id="btn-menu"> 
+<div class="container-menu">
+    <div class="cont-menu">
+        <h3 class="menu-title">Barra de <br> secciones</h3>
+        <nav>
+            <label for="btn-menu" class= "icon-equis"> ❮ </label> 
+            <a href="2. Identificación del estudiante.html"> Estudiante </a>
+            <a href="3. Residencia del estudiante.html"> Residencia </a>
+            <a href="4. Grupo_familiar.html"> Familia </a>
+            <a href="5. PNF_estudio.html"> PNF de estudio </a>
+            <a href="6. Materias_inscritas.html"> Materias inscritas </a>
+            <a href="7. Record_academico.html"> Record academico </a>
+            <a href="8. Datos_adicionales.html"> Datos adicionales </a>
+            
+            <hr>
+        </nav>
+        <div class="footer-menu"> 
+            <a href="1. Inicio.html" class="btn-salir"> Cerrar sesión 🚪</a>
+        </div>
+        <!-- <label for="btn-menu" class="icon-equis"> X </label> -->
+    </div>
+</div>
+</body>

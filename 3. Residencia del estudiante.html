@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<meta charset = "utf-8">
+<title> Residencia/vivienda </title>
+<head>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<h1> RESIDENCIA/VIVIENDA DEL ESTUDIANTE </h1>
+
+<body> 
+    <form>  
+        <div id="inputs_3">
+            <br> 
+            <label> Tipo de residencia </label>
+            <select>
+                <option> --Residencia-- </option>
+                <option value="Familiar" name="Residencia familiar"> Familiar </option>
+                <option value="Particular" name="Residencia particular"> Particular </option>
+                <option value="Universitaria" name="Residencia universitaria"> Universitaria </option>
+                <option value="Otro" name="Otra residencia"> Otro... </option>
+            </select>
+
+            <label> Tipo de vivienda </label>
+            <select>
+                <opgroup> 
+                    <option value=""> --Vivienda-- </option>
+                    <option value="Casa residencial" name="Casa residencial"> Casa residencial</option>
+                    <option value="Apartamento residencial" name="Apartamento residencial"> Apartamento residencial </option>
+                    <option value="Casa de interés social" name="Casa de interés social"> Casa de interés social </option>
+                    <option value="Apartamento de interés social" name="Apartamento de interés social"> Apartamento de interés social </option>
+                </opgroup>
+            </select>
+            <br><br>
+
+            <label> Tipo de localidad </label>
+            <select> 
+                <option value=""> --Localidad--</option>
+                <option value="Rural"> Rural </option>
+                <option value="Ranco"> Rancho </option>
+                <option value="Urbano"> Urbana </option>
+                <option value="Otro"> Otra... </option>
+            </select>
+            <br><br><br>
+            
+            <label> Régimen de propiedad </label>
+            <select>
+                <option value=""> --Propiedad-- </option>
+                <option value="Propia"> Propia </option>
+                <option value="Alquilada"> Alquilada </option>
+                <option value="Cedida"> Cedida </option>
+                <option value="Comodato"> Comodato </option>
+
+
+            </select>
+                <br> <br> <hr> <br> <br>
+
+                <label> Dirección local </label>
+                <input type="text" name="D. local" placeholder="..."> </input>
+
+                <label> Dirección de procedencia </label>
+                <input type="text" name="D. procedencia" placeholder="..."> </input>
+                <br><br>
+                
+                <label> Teléfono local </label>
+                <input type="tel" name="Tel. local" placeholder="0424*******"> </input>
+
+                <label> Teléfono de procedencia </label>
+                <input type="tel" name="Tel. procedencia" placeholder="0428*******"> </input>
+                <br><br> <hr> <br> <br>
+
+                <label> ¿Paga esta vivienda? </label>
+                Sí <input type="checkbox" value="Sí">
+                No <input type="checkbox" value="No">
+                <br><br> <hr> <br> 
+
+                <button type="button" onclick="window.location.href='2. Identificación del estudiante.html'"> Volver </button>
+                <button type= reset> Borrar datos </button>
+                <button type="button" onclick="window.location.href='4. Grupo_familiar.html'"> Siguiente </button> 
+            
+                <br>
+
+            </select>
+
+        </div>
+
+    </form> 
+
+</body>
