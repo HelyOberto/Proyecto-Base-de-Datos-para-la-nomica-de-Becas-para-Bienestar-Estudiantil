@@ -1,21 +1,177 @@
-
 body {
-    background-color: rgb(57, 127, 255);
+    background-color: #eee;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
 
-    }
+#main-container {
+    background: white;
+    width: 95%;
+    max-width: 850px; /* Un poco más ancho para la tabla */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border-top: 6px solid #FF6600;
+}
 
-#inputs {
-        text-align: center;
-        background-color: rgb(127, 187, 255);
-        border: 2px solid;
-        padding: 20px;
-        margin: 20px;
-        border-radius: 10px;
-        font-family: Arial;
-        width: 20cm;
-        height: 43cm;
-        }
+h2 { color: #FF6600; font-size: 1.1rem; margin-top: 0; }
 
-p.dato {
-    text-align: right;
+/* Grid y Formularios */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 25px;
+    margin-bottom: 25px;
+}
+
+.full-width { grid-column: span 2; }
+
+label { font-size: 0.85rem; font-weight: bold; display: block; margin-bottom: 2px; }
+input, select, textarea { 
+    width: 100%; 
+    padding: 6px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+/* Barra de progreso */
+.progress-wrapper { background: #ddd; height: 6px; border-radius: 3px; margin-bottom: 20px; }
+.progress-bar { background: #FF6600; width: 0%; height: 100%; transition: 0.3s; }
+
+/* Pasos */
+.step { display: none; }
+.step.active { display: block; }
+
+/* Botones de Navegación */
+.nav-buttons { margin-top: 15px; display: flex; justify-content: space-between; }
+button { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+.btn-next { background: #FF6600; color: white; }
+.btn-prev { background: #999; color: white; }
+.btn-submit { background: #28a745; color: white; width: 100%; }
+
+/* --- SECCIÓN TABLA DINÁMICA --- */
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 10px;
+    position: relative;
+}
+
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+th { 
+    background-color: #f8f9fa;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+th, td { 
+    padding: 8px; 
+    border: 1px solid #ddd; 
+    text-align: left; 
+}
+
+/* Fila especial para posicionar el botón fuera */
+tr { position: relative; }
+
+.btn-add { 
+    background-color: #28a745; 
+    color: white; 
+    margin-top: 10px;
+}
+
+/* Botón de eliminar "Fuera" de la tabla */
+.btn-remove { 
+    position: absolute;
+    right: -35px; /* Lo saca del borde de la tabla */
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #dc3545; 
+    color: white; 
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    line-height: 1;
+    z-index: 10;
+}
+
+.controles-tabla { display: flex; align-items: center; gap: 15px; }
+#aviso-limite { color: #dc3545; font-size: 0.8rem; font-weight: bold; }
+
+/* Utilidades */
+.oculto { display: none !important; }
+.deshabilitado { opacity: 0.5; cursor: not-allowed; }
+.resumen-box { height: 250px; overflow-y: auto; background: #f9f9f9; padding: 10px; border: 1px solid #ddd; font-size: 0.8rem; }
+
+/* Estilos para el Resumen Final */
+.resumen-box {
+    height: 350px; /* Un poco más alto para mayor comodidad */
+    overflow-y: auto;
+    background: #ffffff;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+}
+
+.resumen-seccion {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+.resumen-seccion h3 {
+    color: #FF6600;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.resumen-seccion p {
+    font-size: 0.9rem;
+    margin: 4px 0;
+    color: #333;
+}
+
+.tabla-resumen-mini {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-top: 10px;
+}
+
+.tabla-resumen-mini th {
+    background: #f8f9fa;
+    text-align: left;
+    padding: 5px;
+    border: 1px solid #ddd;
+}
+
+.tabla-resumen-mini td {
+    padding: 5px;
+    border: 1px solid #ddd;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background-color: #28a745;
+    color: white;
+    font-size: 50px;
+    line-height: 80px;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
 }

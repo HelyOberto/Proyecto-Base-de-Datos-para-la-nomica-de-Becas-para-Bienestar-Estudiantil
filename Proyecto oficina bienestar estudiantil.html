@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estudio Socio Económico - UPTAG</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<div id="main-container">
+    <div class="header">
+        <h1 class="uptag-title">UPTAG</h1>
+        <p>Estudio Socio Económico para Becas</p>
+    </div>
+
+    <div class="progress-wrapper">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <form id="becaForm" action="finalizar.php" method="POST">
+        
+        <div class="step active">
+            <h2>1. Identificación del Estudiante</h2>
+            <div class="grid-container">
+                <div>
+                    <label>Nombres</label>
+                    <input type="text" name="nombres" required>
+                </div>
+                
+                <div>
+                    <label>Apellidos</label>
+                    <input type="text" name="apellidos" required>
+                </div>
+                
+                <div>
+                    <label>C.I.</label>
+                    <input type="text" name="cedula" required>
+                </div>
+                
+                <div>
+                    <label>Teléfono</label>
+                    <input type="tel" name="tel_estudiante">
+                </div>
+                
+                <div>
+                    <label>Fecha de Nacimiento</label>
+                    <input type="date" name="f_nac">
+                </div>
+                
+                <div>
+                    <label>Edad</label>
+                    <input type="number" id="edad" name="edad" min="1" max="120">
+                </div>
+                
+                <div><label>Estado Civil</label>
+                    <select name="edo_civil">
+                        <option>Soltero/a</option>
+                        <option>Casado/a</option>
+                        <option>Divorciado/a</option>
+                        <option>Viudo/a</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label>Email</label>
+                    <input type="email" name="correo">
+                </div>
+
+                <div>
+                    <label>Codigo del Carnet de la Patria</label>
+                    <input type="text" name="C_Patria">
+                </div>
+
+            </div>
+            
+            <div class="checkbox-group">
+                <label>
+                    ¿Posees un trabajo?<input type="checkbox" name="trabaja" id="check_trabaja"> 
+                </label>
+                <label>
+                    ¿Viajas frecuentemente? <input type="checkbox" name="viaja">
+                </label>
+                <label>
+                    ¿Te encuentras activo en tus estudios? <input type="checkbox" name="activo" id="check_activo">
+                </label>
+            </div>
+
+            <div class="nav-buttons"><button type="button" class="btn-next">Siguiente</button></div>
+        </div>
+
+        <div class="step">
+            <h2>2. Residencia / Vivienda</h2>
+
+            <div class="grid-container">
+
+                <div>
+                    <label>Tipo de residencia</label>
+                        <select name="t_res">
+                            <option>Familiar</option>
+                            <option>Particular</option>'
+                            <option>Universitaria</option>
+                            <option>Otro...</option>
+                        </select>
+                </div>
+
+                <div>
+                    <label>Tipo de vivienda</label>
+                        <select name="t_viv">
+                            <option>Casa residencial</option>
+                            <option>Apartamento residencial</option>
+                            <option>Casa de interés</option>
+                            <option>Casa de interés social</option>
+                            <option>Apartamentode interés social</option>
+                        </select>
+                </div>
+                
+                <div>
+                    <label>Tipo de localidad</label>
+                        <select name="t_loc">
+                            <option>Rural</option>
+                            <option>Rancho</option>
+                            <option>Urbano</option>
+                            <option>Otro...</option>
+                        </select>
+                </div>
+                
+                <div>
+                    <label>Régimen de propiedad</label>
+                        <select name="r_prop">
+                            <option>Propia</option>
+                            <option>Alquilada</option>
+                            <option>Cedida</option>
+                            <option>Comodato</option>
+                        </select>
+                </div>
+                
+                <div>
+                    <label>Dirección Local</label>
+                    <input type="text" name="dir_local">
+                </div>
+
+                <div>
+                    <label>Dirección de procedencia</label>
+                    <input type="text" name="dir_procedencia">
+                </div>
+                
+                <div>
+                    <label>Telefono Local</label>
+                    <input type="tel" name="tel_local">
+                </div>
+
+                <div>
+                    <label>Telefono de procedencia</label>
+                    <input type="tel" name="tel_local">
+                </div>
+                
+                <div class="checkbox-group">
+                    <label>
+                        ¿Paga usted la vivienda? <input type="checkbox" name="trabaja">
+                    </label>
+                </div>
+            
+            </div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>3. Información Laboral</h2>
+            <div class="grid-container">
+                <div><label>¿Cual es su trabajo?</label><input type="text" name="cargo"></div>
+                <div><label>¿En dónde trabaja?</label><input type="text" name="empresa"></div>
+                <div><label>Ingresos ($)</label><input type="number" name="ingresos" max="10000"></div>
+                <div><label>¿De quién recibe los aportes el bachiller?</label><input type="text" name="aportador"></div>
+                <div><label>Monto (Bs.)</label><input type="number" name="monto_bs"></div>
+            </div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>4. Información del PNF</h2>
+            <div class="grid-container">
+                
+                <div class="full-width">
+                    <label>Carrera</label>
+                    <select name="carrera">
+                        <option value="agroalimentacion">Agroalimentación</option>
+                        <option value="quimica">Química</option>
+                        <option value="procesos_quimicos">Procesos Químicos</option>
+                        <option value="instrumentacion_control">Instrumentación y Control</option>
+                        <option value="electricidad">Electricidad</option>
+                        <option value="electronica">Electrónica</option>
+                        <option value="construccion_civil">Construcción Civil</option>
+                        <option value="contaduria_publica">Contaduría Pública</option>
+                        <option value="informatica">Informática</option>
+                        <option value="administracion">Administración</option>
+                        <option value="mecanica">Mecánica</option>
+                    </select>
+                </div>
+
+                <div><label>Fecha Ingreso</label><input type="date" name="f_ingreso"></div>
+                
+                <div><label>Código de estudiante</label><input type="text" name="cod_est"></div>
+                
+                <div>
+                    <label>Trayecto actual</label>
+                    <select name="trayecto">
+                        <option>Inicial</option>
+                        <option>Primero</option>
+                        <option>Segundo</option>
+                        <option>Tercero</option>
+                        <option>Cuarto</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Trimestre</label>
+                    <select name="trimestre">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                    </select>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>5. Materias Inscritas</h2>
+            <div id="materias-container" style="border: 1px solid #ccc; padding: 10px; max-height: 200px; overflow-y: auto; border-radius: 5px;">
+                <div class="materia-item"><input type="checkbox" name="materias" value="proyectoi"> Proyecto Socio-Integrador I</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="matematica"> Matemática</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="formacion_critica"> Formación Crítica / Sociocrítica</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="algoritmica"> Algorítmica y Programación</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="arquitectura"> Arquitectura del Computador</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="contabilidad"> Contabilidad I</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="ingles"> Idiomas (Inglés)</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="quimica_basica"> Química Básica</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="dibujo_mecanico"> Dibujo Mecánico</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="fisica"> Física Aplicada</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="redes"> Redes de Computadora</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="electrotecnia"> Electrotecnia</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="mantenimiento"> Mantenimiento</div>
+                <div class="materia-item"><input type="checkbox" name="materias" value="deporte"> Deporte y Recreación</div>
+            </div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>6. Récord Académico Anterior</h2>
+            <div class="grid-container">
+                <div><label>Nro. Materias inscritas</label><input type="number" name="m_ins" min="0" max="8"></div>
+                <div><label>Materias aprobadas</label><input type="number" name="m_apr" min="0" max="8"></div>
+                <div><label>Materias inasistentes</label><input type="number" name="m_ina" min="0" max="8"></div>
+                <div><label>Índice del trimestre</label><input type="text" id="record_indice" name="indice_ant"></div>
+            </div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="contenedor-seccion">
+                <h2>7. Familiares del Estudiante</h2>
+                <div class="table-container">
+                    <div class="table-responsive">
+                        <table id="tabla-familiares">
+                            <thead>
+                                <tr>
+                                    <th>Nombre y Apellido</th>
+                                    <th>Parentesco</th>
+                                    <th>Edad</th>
+                                    <th>Instrucción</th>
+                                    <th>Ocupación</th>
+                                    <th>Ingreso ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpo-tabla">
+                                <tr class="fila-familiar">
+                                    <td><input type="text" name="f_nom[]" required placeholder="Ej: Maria Perez"></td>
+                                    <td><input type="text" name="f_par[]" required placeholder="Ej: Madre"></td>
+                                    <td><input type="number" name="f_eda[]" required min="0" max="120"></td>
+                                    <td><input type="text" name="f_ins[]" placeholder="Nivel educativo"></td>
+                                    <td><input type="text" name="f_ocu[]" placeholder="Trabajo"></td>
+                                    <td><input type="number" name="f_ing[]" step="0.01" placeholder="0.00"></td>
+                                    <button type="button" class="btn-remove oculto" title="Eliminar">&times;</button>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="controles-tabla">
+                    <button type="button" id="btn-agregar" class="btn-add">+ Añadir Familiar</button>
+                    <small id="aviso-limite" class="oculto">Límite de 5 familiares alcanzado.</small>
+                </div>
+        </div>
+
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>8. Datos Adicionales</h2>
+            <textarea name="comentarios" rows="4" placeholder="Observaciones máximas 500 caracteres..."></textarea>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Anterior</button>
+                <button type="button" class="btn-next">Siguiente</button>
+            </div>
+        </div>
+
+        <div class="step">
+            <h2>Verifica que todos los datos sean correctos</h2>
+            <div id="resumen" class="resumen-box"></div>
+            <div class="nav-buttons">
+                <button type="button" class="btn-prev">Corregir</button>
+                <button type="button" class="btn-next">Enviar datos</button>
+            </div>
+        </div>
+
+        <div class="step" id="step-success">
+            <div style="text-align: center; padding: 40px 20px;">
+                <div class="success-icon">✓</div>
+                <h2 style="font-size: 1.5rem; margin-top: 20px;">¡Envío Exitoso!</h2>
+                <p>Los datos han sido enviados exitosamente al sistema de UPTAG.</p>
+                <p style="color: #666; font-size: 0.9rem;">Pronto recibirá un correo con el comprobante de su solicitud.</p>
+                
+                <button type="button" class="btn-next" onclick="location.reload()" style="margin-top: 30px;">
+                    Realizar otra solicitud
+                </button>
+            </div>
+    </div>
+
+    </form>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
