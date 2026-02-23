@@ -1,57 +1,5 @@
 /**
- * FUNCIONES DEL PASO 1 (Ámbito global)
- */
-function initIdentificacion() {
-    const fNacInput = document.getElementById('f_nac');
-    const edadInput = document.getElementById('edad');
-
-    if (fNacInput && edadInput) {
-        const actualizar = () => {
-            const edadCalculada = calcularEdad(fNacInput.value);
-            edadInput.value = edadCalculada;
-            if(window.formDataStorage) window.formDataStorage['edad'] = edadCalculada;
-        };
-
-        fNacInput.addEventListener('input', actualizar);
-        fNacInput.addEventListener('change', actualizar);
-
-        if (fNacInput.value) actualizar();
-    }
-}
-
-function calcularEdad(fecha) {
-    if (!fecha) return "00";
-    const hoy = new Date();
-    const cumpleanos = new Date(fecha);
-    let edad = hoy.getFullYear() - cumpleanos.getFullYear();
-    const mes = hoy.getMonth() - cumpleanos.getMonth();
-    
-    if (mes < 0 || (mes === 0 && hoy.getDate() < cumpleanos.getDate())) {
-        edad--;
-    }
-    return edad >= 0 ? edad.toString().padStart(2, '0') : "00";
-}
-
-function validarPaso1() {
-    const checkActivo = document.getElementById('check_activo');
-    const edadCampo = document.getElementById('edad');
-    const edad = parseInt(edadCampo.value, 10) || 0;
-
-    if (!checkActivo || !checkActivo.checked) {
-        alert("⚠️ No puedes continuar: Debes confirmar que te encuentras activo en tus estudios.");
-        return false;
-    }
-
-    if (edad < 17 || edad > 39) {
-        alert(`⚠️ Edad no permitida (${edad} años): Debes tener entre 17 y 39 años para solicitar la beca.`);
-        return false;
-    }
-
-    return true; 
-}
-
-/**
- * ARCHIVO: main.js (Raíz) - Lógica Principal Integrada
+ * ARCHIVO: main.js (Raíz) - Motor de Navegación
  */
 document.addEventListener('DOMContentLoaded', () => {
     let currentStep = 1; 
@@ -61,9 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContainer = document.getElementById('main-container');
     window.formDataStorage = {}; 
 
-    // --- INTEGRACIÓN DEL BOTÓN DE LIMPIEZA ---
+    // --- BOTÓN DE LIMPIEZA ---
     const btnLimpiar = document.createElement('button');
-    btnLimpiar.className = 'btn-clear-data'; // Usa el estilo de tu CSS
+    btnLimpiar.className = 'btn-clear-data';
     btnLimpiar.innerHTML = 'Borrar Campos';
     mainContainer.appendChild(btnLimpiar);
 
@@ -75,10 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 else input.value = '';
                 if (input.name) delete window.formDataStorage[input.name];
             });
-            // Reset manual para campos calculados
-            if (currentStep === 1 && document.getElementById('edad')) {
-                document.getElementById('edad').value = '00';
-            }
+            // Si el paso cargado tiene una función de reset específica, la usamos
+            if (currentStep === 1 && document.getElementById('edad')) document.getElementById('edad').value = '00';
         }
     };
 
@@ -131,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             script.src = scriptPath;
             script.id = 'step-script';
             script.onload = () => {
+                // El main solo llama a las funciones, no las define
                 if (stepNumber === 1 && typeof initIdentificacion === 'function') initIdentificacion();
                 if (stepNumber === 5 && typeof initMaterias === 'function') initMaterias();
                 if (stepNumber === 6 && typeof initRecord === 'function') initRecord();
@@ -145,25 +92,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function actualizarInterfaz(step) {
         if (progressBar) progressBar.style.width = `${(step / totalSteps) * 100}%`;
-        
-        // Navegación
         document.getElementById('prevBtn').style.display = (step <= 1 || step >= 10) ? 'none' : 'inline-block';
         document.getElementById('nextBtn').textContent = (step === 9) ? "Confirmar" : "Siguiente";
-
-        // Visibilidad del botón Limpiar (Solo hasta paso 8)
         btnLimpiar.style.display = (step > 0 && step <= 8) ? 'block' : 'none';
     }
 
     document.getElementById('nextBtn').onclick = () => {
+        // Las validaciones se llaman igual, pero viven en sus propios scripts
         if (currentStep === 1 && typeof validarPaso1 === 'function') {
             if (!validarPaso1()) return;
         }
-
         if (currentStep === 3) {
             alert("⚠️ No podrás solicitar la beca, puesto que al poseer un trabajo no cumples con los requisitos.");
             return;
         }
-
         if (currentStep === 6 && typeof validarRecord === 'function') {
             if (!validarRecord()) return;
         }
@@ -175,19 +117,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             currentStep++;
         }
-        
         loadStep(currentStep);
     };
 
     document.getElementById('prevBtn').onclick = () => {
         window.saveCurrentData();
-
         if (currentStep === 4 && !window.formDataStorage['trabaja']) {
             currentStep = 2;
         } else {
             currentStep--;
         }
-
         loadStep(currentStep);
     };
 
