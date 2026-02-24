@@ -1,7 +1,10 @@
-/* --- BASE GENERAL --- */
+/* ==========================================================================
+   ESTILOS BASE Y CONTENEDOR PRINCIPAL
+   ========================================================================== */
 body {
     background-color: #eee;
     font-family: Arial, sans-serif;
+    /* Centrado absoluto del formulario en la pantalla */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -16,7 +19,9 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    /* Identidad visual: línea superior naranja */
     border-top: 6px solid #FF6600;
+    position: relative; /* Necesario para el posicionamiento del botón 'Borrar' */
 }
 
 h2 { 
@@ -28,14 +33,18 @@ h2 {
     margin-bottom: 15px; 
 }
 
-/* --- GRID Y FORMULARIOS --- */
+/* ==========================================================================
+   FORMULARIOS Y SISTEMA DE GRID (Usado en pasos 1, 2, 3, 4, 8)
+   ========================================================================== */
 .grid-container {
     display: grid;
+    /* Divide el formulario en dos columnas iguales */
     grid-template-columns: repeat(2, 1fr);
     gap: 20px 25px;
     margin-bottom: 25px;
 }
 
+/* Clase para que un input ocupe las dos columnas (ej: Direcciones o Textareas) */
 .full-width { grid-column: span 2; }
 
 label { 
@@ -51,16 +60,18 @@ input, select, textarea {
     border: 1px solid #ccc; 
     border-radius: 4px;
     font-size: 0.9rem;
-    box-sizing: border-box;
+    box-sizing: border-box; /* Asegura que el padding no desborde el ancho */
 }
 
-/* --- PÁGINA 5 (LISTADO DE MATERIAS) --- */
+/* ==========================================================================
+   PÁGINA 5: LISTADO DE MATERIAS (Selección múltiple)
+   ========================================================================== */
 #materias-container {
     background: #fff;
     border: 1px solid #ccc;
     padding: 10px;
     max-height: 250px; 
-    overflow-y: auto;
+    overflow-y: auto; /* Scroll vertical si hay muchas materias */
     border-radius: 5px;
     margin-top: 10px;
 }
@@ -80,63 +91,19 @@ input, select, textarea {
     margin-right: 10px;
 }
 
-/* --- PÁGINA 8 (TEXTAREA) --- */
-textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-/* --- BARRA DE PROGRESO --- */
-.progress-wrapper { background: #ddd; height: 6px; border-radius: 3px; margin-bottom: 20px; }
-.progress-bar { background: #FF6600; width: 0%; height: 100%; transition: 0.3s; }
-
-/* --- NAVEGACIÓN Y BOTONES --- */
-.nav-buttons { 
-    margin-top: 20px; 
-    display: flex; 
-    justify-content: space-between; 
-    gap: 10px; /* Espacio uniforme entre botones */
-}
-
-/* Forzamos a que todos los botones de la navegación sean del mismo tamaño */
-.nav-buttons button { 
-    flex: 1; 
-    padding: 12px 20px; 
-    border: none; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    font-weight: bold; 
-    font-size: 0.9rem;
-    white-space: nowrap;
-}
-
-.btn-next { background: #FF6600; color: white; }
-.btn-prev { background: #999; color: white; }
-
-/* Botón de Reinicio (Página 9) */
-.btn-reset { 
-    background-color: #dc3545; 
-    color: white; 
-}
-
-.btn-reset:hover { background-color: #a71d2a; }
-
-/* Botón de envío final */
-.btn-submit { 
-    background: #28a745; 
-    color: white; 
-}
-
-/* --- SECCIÓN TABLA DINÁMICA --- */
+/* ==========================================================================
+   PÁGINA 7: TABLA DINÁMICA DE FAMILIARES
+   ========================================================================== */
 .table-responsive {
-    overflow-x: visible; /* Cambiado de auto a visible para que la 'x' no se corte */
+    /* overflow-x: visible para permitir que el botón de eliminar (fuera de la tabla) se vea */
+    overflow-x: visible; 
     margin-top: 10px;
-    margin-right: 40px;  /* Espacio extra a la derecha para la X */
+    margin-right: 40px;  /* Espacio reservado para los botones de eliminación flotantes */
     position: relative;
 }
 
 table { 
-    width: 90%; /* Reducido de 95.5% a 90% para dar espacio al botón */
+    width: 90%; 
     border-collapse: collapse; 
 }
 
@@ -154,16 +121,10 @@ th, td {
 
 tr { position: relative; }
 
-.btn-add { 
-    background-color: #28a745; 
-    color: white; 
-    margin-top: 10px;
-    flex: none !important; /* El botón de añadir no debe estirarse como los de navegación */
-}
-
+/* Botón flotante 'X' para eliminar filas */
 .btn-remove { 
     position: absolute;
-    right: -35px;
+    right: -35px; /* Se posiciona fuera del borde de la tabla */
     top: 50%;
     transform: translateY(-50%);
     background-color: #dc3545; 
@@ -174,12 +135,23 @@ tr { position: relative; }
     padding: 0;
     line-height: 1;
     z-index: 10;
+    cursor: pointer;
 }
 
 .controles-tabla { display: flex; align-items: center; gap: 15px; }
 #aviso-limite { color: #dc3545; font-size: 0.8rem; font-weight: bold; }
 
-/* --- RESUMEN FINAL (Página 9) --- */
+/* ==========================================================================
+   PÁGINA 8: COMENTARIOS ADICIONALES
+   ========================================================================== */
+textarea {
+    resize: vertical; /* Solo permite estirar hacia abajo */
+    min-height: 100px;
+}
+
+/* ==========================================================================
+   PÁGINA 9: RESUMEN FINAL Y VERIFICACIÓN
+   ========================================================================== */
 .resumen-box {
     height: 350px;
     overflow-y: auto;
@@ -187,7 +159,6 @@ tr { position: relative; }
     padding: 20px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    text-align: left;
 }
 
 .resumen-seccion {
@@ -199,28 +170,21 @@ tr { position: relative; }
 .resumen-seccion h3 {
     color: #FF6600;
     font-size: 0.9rem;
-    margin-bottom: 8px;
     text-transform: uppercase;
-    letter-spacing: 1px;
     border-bottom: 2px solid #FF6600;
     display: inline-block;
     padding-right: 15px;
 }
 
-.resumen-seccion p {
-    font-size: 0.9rem;
-    margin: 4px 0;
-    color: #333;
-}
-
-/* --- ÉXITO (Página 10) --- */
+/* ==========================================================================
+   PÁGINA 10: PANTALLA DE ÉXITO
+   ========================================================================== */
 .success-icon {
     width: 80px;
     height: 80px;
     background-color: #28a745;
     color: white;
     font-size: 50px;
-    line-height: 80px;
     border-radius: 50%;
     margin: 0 auto;
     display: flex;
@@ -229,34 +193,40 @@ tr { position: relative; }
     box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
 }
 
-/* --- INPUTS CON SUFIJO --- */
-.input-symbol-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
+/* ==========================================================================
+   COMPONENTES DE NAVEGACIÓN Y PROGRESO
+   ========================================================================== */
+.progress-wrapper { background: #ddd; height: 6px; border-radius: 3px; margin-bottom: 20px; }
+.progress-bar { background: #FF6600; width: 0%; height: 100%; transition: 0.3s; }
+
+.nav-buttons { 
+    margin-top: 20px; 
+    display: flex; 
+    justify-content: space-between; 
+    gap: 10px; 
 }
 
-.input-symbol-wrapper input {
-    padding-right: 40px;
+.nav-buttons button { 
+    flex: 1; /* Hace que todos los botones de la navegación tengan el mismo ancho */
+    padding: 12px 20px; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-weight: bold; 
+    white-space: nowrap;
 }
 
-.input-symbol-wrapper .suffix {
-    position: absolute;
-    right: 12px;
-    font-weight: bold;
-    pointer-events: none;
-    font-size: 0.9rem;
-}
+.btn-next { background: #FF6600; color: white; }
+.btn-prev { background: #999; color: white; }
+.btn-submit { background: #28a745; color: white; }
+.btn-reset { background-color: #dc3545; color: white; }
+.btn-reset:hover { background-color: #a71d2a; }
 
-/* --- UTILIDADES --- */
-.oculto { display: none !important; }
-.deshabilitado { opacity: 0.5; cursor: not-allowed; }
+/* ==========================================================================
+   UTILIDADES Y ESTILOS DINÁMICOS (Inyectados por JS)
+   ========================================================================== */
 
-/* --- BOTÓN DE LIMPIEZA DINÁMICO --- */
-#main-container {
-    position: relative; /* Para que el botón absoluto se ubique respecto a este cuadro */
-}
-
+/* Botón 'Borrar Campos' que aparece dinámicamente arriba a la derecha */
 .btn-clear-data {
     position: absolute;
     top: 15px;
@@ -270,9 +240,22 @@ tr { position: relative; }
     font-size: 0.7rem;
     font-weight: bold;
     z-index: 100;
-    transition: background 0.2s;
 }
 
-.btn-clear-data:hover {
-    background-color: #a71d2a;
+/* Wrapper para inputs que llevan símbolo (ej: Bs. o %) */
+.input-symbol-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
+
+.input-symbol-wrapper .suffix {
+    position: absolute;
+    right: 12px;
+    font-weight: bold;
+    pointer-events: none; /* El clic pasa a través del texto hacia el input */
+    font-size: 0.9rem;
+}
+
+.oculto { display: none !important; }
+.deshabilitado { opacity: 0.5; cursor: not-allowed; }

@@ -1,15 +1,28 @@
 /**
  * Renderiza el resumen final (Paso 9)
+ * Esta función extrae todos los datos acumulados en window.formDataStorage y 
+ * genera un reporte HTML dinámico para que el usuario revise su información.
  */
 function renderResumen() {
+    // Referencia al contenedor donde se inyectará el resumen
     const container = document.getElementById('resumen');
-    if (!container) return;
+    if (!container) return; // Salida de seguridad si el contenedor no existe
 
+    // Alias para el almacenamiento global para facilitar la lectura
     const data = window.formDataStorage;
+
+    /**
+     * Helper: Obtiene un valor o devuelve un placeholder estilizado si está vacío.
+     */
     const getVal = (key) => data[key] || '<span style="color:#999">No indicado</span>';
+    
+    /**
+     * Helper: Convierte valores booleanos (true/false) en texto legible (Sí/No).
+     */
     const getCheck = (key) => data[key] ? 'Sí' : 'No';
 
-    // 1. Datos Personales
+    // --- SECCIÓN 1: DATOS PERSONALES ---
+    // Se utiliza Template Literals para construir el bloque de identificación con CSS en línea
     let html = `
         <div style="margin-bottom: 25px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
             <h3 style="color: #0056b3; margin-bottom: 10px;">I. Identificación</h3>
@@ -24,7 +37,12 @@ function renderResumen() {
         </div>
     `;
 
-    // 2. Datos Académicos y Materias
+    // --- SECCIÓN 2: DATOS ACADÉMICOS Y MATERIAS ---
+    /**
+     * Filtrado de materias: 
+     * Busca todas las llaves que empiecen con 'mat_' y que sean 'true'.
+     * Luego, limpia el nombre de la llave para que sea legible (quita prefijos y guiones bajos).
+     */
     const materias = Object.keys(data)
         .filter(k => k.startsWith('mat_') && data[k] === true)
         .map(k => k.replace('mat_', '').replace('manual_', '').replace(/_/g, ' ').toUpperCase());
@@ -40,7 +58,12 @@ function renderResumen() {
         </div>
     `;
 
-    // 3. Tabla de Familiares
+    // --- SECCIÓN 3: TABLA DE FAMILIARES ---
+    /**
+     * Reconstrucción de IDs de familiares:
+     * Al igual que en el script de la tabla, buscamos los sufijos únicos (timestamps)
+     * para saber cuántas filas de familiares existen realmente.
+     */
     const idsFam = [...new Set(
         Object.keys(data)
             .filter(key => key.startsWith('f_nom_'))
@@ -60,6 +83,7 @@ function renderResumen() {
                 </thead>
                 <tbody>`;
 
+    // Generación dinámica de las filas de la tabla de familiares
     if (idsFam.length > 0) {
         idsFam.forEach(id => {
             html += `
@@ -70,16 +94,23 @@ function renderResumen() {
                 </tr>`;
         });
     } else {
+        // Mensaje de respaldo si el arreglo de IDs está vacío
         html += `<tr><td colspan="3" style="text-align:center; padding:15px; border: 1px solid #ddd;">No se registraron familiares.</td></tr>`;
     }
 
     html += `</tbody></table></div>`;
+    
+    // Inyección final de todo el bloque generado en el contenedor de la vista
     container.innerHTML = html;
 }
 
+/**
+ * Función para reiniciar todo el proceso.
+ * Limpia el objeto global de datos y recarga la página desde cero (Paso 1).
+ */
 function resetFormulario() {
     if (confirm("¿Seguro que deseas borrar todo y empezar de nuevo?")) {
-        window.formDataStorage = {};
-        location.reload();
+        window.formDataStorage = {}; // Vacía el objeto en memoria
+        location.reload(); // Recarga la URL actual (vuelve al estado inicial de JS)
     }
 }
