@@ -279,7 +279,8 @@ textarea {
     padding: 15px;
     font-family: Arial, sans-serif;
     font-size: 1.2rem;
-    border-bottom: 2px solid #333;
+    /* Línea gris más gruesa para separar el cabezal */
+    border-bottom: 2px solid #444; 
 }
 
 .header {
@@ -389,13 +390,20 @@ textarea {
     
 }
 
-.cont-menu nav a{
+.cont-menu nav a {
     display: block;
     text-decoration: none;
-    padding: 10px 20px; 
-    font-size: 13px; 
+    padding: 11px 20px;
+    font-size: 14px;
     color: #c7c7c7;
+    border-bottom: 1px solid #333; /* Línea fina normal */
     transition: all 400ms ease;
+}
+
+/* 3. QUITAR la línea debajo de 'Verificación de datos' */
+/* Usamos :last-child para que el último enlace no tenga borde */
+.cont-menu nav a:last-child {
+    border-bottom: none !important;
 }
 
 .cont-menu nav a:hover{
@@ -442,17 +450,18 @@ textarea {
     transform: scale(1.1);
 }
 
-hr {
-    border: 0.5px solid #333;
-    margin: 10px 0;
-}
 
+/* 4. Línea arriba de 'Cerrar sesión' (Igual a la del título) */
 .footer-menu {
-    margin-top: auto; 
-    padding: 30px;
-    padding-bottom: 30px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 25px 0;
     text-align: center;
-    border-bottom: 2px solid #333;
+    background: #1c1c1c;
+    /* Misma apariencia que la del título: 2px y color #444 */
+    border-top: 2px solid #444; 
+    border-bottom: none;
 }
 
 .menu-divider {

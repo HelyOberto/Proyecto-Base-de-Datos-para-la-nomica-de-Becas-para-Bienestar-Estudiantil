@@ -1,199 +1,201 @@
 /**
- * ARCHIVO: main.js (Raíz) - Lógica de Navegación e Integración
- * Este script coordina la carga dinámica de formularios (SPA), la persistencia de datos 
- * en memoria y el control del flujo de pasos del usuario.
+ * ARCHIVO: main.js (Raíz) - Lógica de Navegación e Integración SPA
  */
-document.addEventListener('DOMContentLoaded', () => {
-    // --- ESTADO INICIAL ---
-    let currentStep = 1; // Rastrea el paso actual del formulario
-    const totalSteps = 10; // Límite total de pantallas definidas
-    
-    // Referencias a elementos clave del DOM
-    const viewPort = document.getElementById('dynamic-content'); // Contenedor donde se inyecta el HTML de cada paso
-    const progressBar = document.getElementById('progressBar'); // Elemento visual de progreso
-    const mainContainer = document.getElementById('main-container'); // Contenedor principal del layout
-    
-    // Objeto global para almacenar los datos del formulario entre cambios de página
-    window.formDataStorage = {}; 
 
-    // --- INTEGRACIÓN DEL BOTÓN DE LIMPIEZA ---
-    // Se crea dinámicamente el botón para resetear los campos de la vista actual
+// --- 1. ESTADO GLOBAL (Accesible desde cualquier parte) ---
+let currentStep = 1;
+window.formDataStorage = {}; 
+
+const folderMap = {
+    1: "1. Pagina Identificacion",
+    2: "2. Pagina Residencia",
+    3: "3. Pagina Laboral",
+    4: "4. Pagina PNF",
+    5: "5. Pagina Materias",
+    6: "6. Pagina Record academico",
+    7: "7. Pagina Familiares",
+    8: "8. Pagina Datos extra",
+    9: "9. Verificacion",
+    10: "10. Pantalla final"
+};
+
+// --- NUEVA FUNCIÓN: Determinar pasos activos según condiciones ---
+function obtenerPasosActivos() {
+    const pasos = [1, 2]; // El paso 1 y 2 siempre se muestran
+
+    // Verificamos si el estudiante trabaja. 
+    // NOTA: Asegúrate de que el 'name' de tu input en el HTML sea 'trabaja' y el valor sea 'si'.
+    const estudianteTrabaja = window.formDataStorage['trabaja'] === 'si';
+
+    if (estudianteTrabaja) {
+        pasos.push(3); // Solo agregamos el paso 3 si trabaja
+    }
+
+    // Agregamos el resto de los pasos que siempre son fijos
+    pasos.push(4, 5, 6, 7, 8, 9, 10);
+    
+    return pasos;
+}
+
+// --- 2. FUNCIONES DE CARGA (Globales) ---
+
+async function loadStep(stepNumber) {
+    const viewPort = document.getElementById('dynamic-content');
+    if (!viewPort) return;
+
+    const folder = folderMap[stepNumber];
+    const htmlPath = `Paginas/${encodeURIComponent(folder)}/view.html`;
+    const scriptPath = `Paginas/${encodeURIComponent(folder)}/script.js`;
+
+    try {
+        const response = await fetch(htmlPath);
+        if (!response.ok) throw new Error("No se pudo encontrar el archivo");
+        
+        viewPort.innerHTML = await response.text();
+        
+        // Restaurar datos guardados
+        if (window.restoreDataGlobal) window.restoreDataGlobal();
+
+        // Gestionar Scripts
+        const oldScript = document.getElementById('step-script');
+        if (oldScript) oldScript.remove();
+
+        const script = document.createElement('script');
+        script.src = `${scriptPath}?v=${new Date().getTime()}`; 
+        script.id = 'step-script';
+        
+        script.onload = () => {
+            // Inicializadores específicos
+            if (stepNumber === 1 && typeof initIdentificacion === 'function') initIdentificacion();
+            if (stepNumber === 5 && typeof initMaterias === 'function') initMaterias();
+            if (stepNumber === 6 && typeof initRecord === 'function') initRecord();
+            if (stepNumber === 7 && typeof initFamiliares === 'function') initFamiliares();
+            if (stepNumber === 9 && typeof renderResumen === 'function') renderResumen();
+        };
+        
+        document.body.appendChild(script);
+        actualizarInterfaz(stepNumber);
+
+    } catch (e) { 
+        console.error("Error al cargar el paso:", e); 
+    }
+}
+
+function actualizarInterfaz(step) {
+    // Calculamos el progreso basado en los pasos activos reales
+    const pasosActivos = obtenerPasosActivos();
+    const indiceActual = pasosActivos.indexOf(step);
+    const totalPasosReales = pasosActivos.length;
+
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) {
+        // Recalculamos el porcentaje: (índice actual + 1) / total de pasos activos
+        progressBar.style.width = `${((indiceActual + 1) / totalPasosReales) * 100}%`;
+    }
+    
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const btnLimpiar = document.querySelector('.btn-clear-data');
+
+    if (prevBtn) prevBtn.style.display = (step <= 1 || step >= 10) ? 'none' : 'inline-block';
+    if (nextBtn) nextBtn.textContent = (step === 9) ? "Confirmar" : "Siguiente";
+    if (btnLimpiar) btnLimpiar.style.display = (step > 0 && step <= 8) ? 'block' : 'none';
+}
+
+// --- 3. FUNCIONES DE VENTANA (window) PARA EL SIDEBAR ---
+
+window.navegarA = (paso) => {
+    console.log("Navegando al paso:", paso);
+    
+    if (window.saveCurrentData) window.saveCurrentData();
+    
+    currentStep = paso;
+    
+    loadStep(paso).then(() => {
+        const checkMenu = document.getElementById('btn-menu');
+        if (checkMenu) checkMenu.checked = false;
+    });
+};
+
+// --- 4. INICIALIZACIÓN DEL DOM ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    const viewPort = document.getElementById('dynamic-content');
+    const mainContainer = document.getElementById('main-container');
+
+    // Botón de Limpieza
     const btnLimpiar = document.createElement('button');
     btnLimpiar.className = 'btn-clear-data';
     btnLimpiar.innerHTML = 'Borrar Campos';
-    mainContainer.appendChild(btnLimpiar);
+    if (mainContainer) mainContainer.appendChild(btnLimpiar);
 
-    // Lógica al hacer clic en "Borrar Campos"
     btnLimpiar.onclick = () => {
-        if (confirm("¿Estás seguro de que deseas borrar los datos de esta página?")) {
-            // Selecciona todos los elementos de entrada en la vista actual
+        if (confirm("¿Deseas borrar los datos de esta página?")) {
             const inputs = viewPort.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
-                // Resetea el valor según el tipo de input
-                if (input.type === 'checkbox') input.checked = false;
+                if (input.type === 'checkbox' || input.type === 'radio') input.checked = false;
                 else input.value = '';
-                
-                // Elimina la entrada correspondiente del almacenamiento global si tiene un nombre (name)
                 if (input.name) delete window.formDataStorage[input.name];
             });
-            
-            // Caso especial: Reset manual para el campo 'edad' si está en el Paso 1
-            if (currentStep === 1 && document.getElementById('edad')) {
-                document.getElementById('edad').value = '00';
-            }
         }
     };
 
-    // Mapeo de los números de paso con sus respectivas carpetas físicas en el servidor
-    const folderMap = {
-        1: "1. Pagina Identificacion",
-        2: "2. Pagina Residencia",
-        3: "3. Pagina Laboral",
-        4: "4. Pagina PNF",
-        5: "5. Pagina Materias",
-        6: "6. Pagina Record academico",
-        7: "7. Pagina Familiares",
-        8: "8. Pagina Datos extra",
-        9: "9. Verificacion",
-        10: "10. Pantalla final"
-    };
-
-    /**
-     * Guarda los valores actuales de los inputs del DOM en el objeto global formDataStorage
-     */
     window.saveCurrentData = () => {
         const inputs = viewPort.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
             if (input.name) {
-                // Almacena booleanos para checkboxes o el string value para el resto
-                window.formDataStorage[input.name] = (input.type === 'checkbox') ? input.checked : input.value;
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    if (input.checked) window.formDataStorage[input.name] = input.value;
+                } else {
+                    window.formDataStorage[input.name] = input.value;
+                }
             }
         });
     };
 
-    /**
-     * Recupera los valores guardados en formDataStorage y los inyecta en los inputs del DOM
-     */
     window.restoreDataGlobal = () => {
         const inputs = viewPort.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
-            if (window.formDataStorage[input.name] !== undefined) {
-                if (input.type === 'checkbox') input.checked = window.formDataStorage[input.name];
-                else input.value = window.formDataStorage[input.name];
+            const savedValue = window.formDataStorage[input.name];
+            if (savedValue !== undefined) {
+                if (input.type === 'checkbox' || input.type === 'radio') {
+                    input.checked = (input.value === savedValue || savedValue === true);
+                } else {
+                    input.value = savedValue;
+                }
             }
         });
     };
 
-    /**
-     * Función principal de carga: Obtiene el HTML y JS de cada paso de forma asíncrona
-     */
-    async function loadStep(stepNumber) {
-        const folder = folderMap[stepNumber];
-        // Construcción de rutas codificando caracteres especiales para URLs
-        const htmlPath = `Paginas/${encodeURIComponent(folder)}/view.html`;
-        const scriptPath = `Paginas/${encodeURIComponent(folder)}/script.js`;
-
-        try {
-            // 1. Petición para obtener el fragmento de HTML del paso
-            const response = await fetch(htmlPath);
-            viewPort.innerHTML = await response.text();
-            
-            // 2. Rellenar los campos si el usuario ya los había visitado/llenado antes
-            window.restoreDataGlobal();
-
-            // 3. Gestión del Script: Elimina el script del paso anterior para evitar conflictos
-            const oldScript = document.getElementById('step-script');
-            if (oldScript) oldScript.remove();
-
-            // Crea un nuevo elemento script para la lógica específica del paso cargado
-            const script = document.createElement('script');
-            // Se agrega un timestamp para evitar que el navegador use una versión en caché (Cache busting)
-            script.src = `${scriptPath}?v=${new Date().getTime()}`; 
-            script.id = 'step-script';
-            
-            // Una vez cargado el script, se disparan las funciones de inicialización si existen
-            script.onload = () => {
-                if (stepNumber === 1 && typeof initIdentificacion === 'function') initIdentificacion();
-                if (stepNumber === 5 && typeof initMaterias === 'function') initMaterias();
-                if (stepNumber === 6 && typeof initRecord === 'function') initRecord();
-                if (stepNumber === 7 && typeof initFamiliares === 'function') initFamiliares();
-                if (stepNumber === 9 && typeof renderResumen === 'function') renderResumen();
-            };
-            
-            document.body.appendChild(script);
-            // Actualiza los elementos visuales de la interfaz (botones, progreso)
-            actualizarInterfaz(stepNumber);
-
-        } catch (e) { 
-            console.error("Error al cargar el paso:", e); 
-        }
-    }
-
-    /**
-     * Gestiona la visibilidad y estados de los elementos de navegación
-     */
-    function actualizarInterfaz(step) {
-        // Actualiza el ancho de la barra de progreso proporcionalmente
-        if (progressBar) progressBar.style.width = `${(step / totalSteps) * 100}%`;
-        
-        // Oculta "Atrás" en la primera y última página
-        document.getElementById('prevBtn').style.display = (step <= 1 || step >= 10) ? 'none' : 'inline-block';
-        
-        // Cambia el texto del botón principal en el paso de verificación
-        document.getElementById('nextBtn').textContent = (step === 9) ? "Confirmar" : "Siguiente";
-        
-        // El botón de limpiar solo es visible en los pasos de captura de datos (1 al 8)
-        btnLimpiar.style.display = (step > 0 && step <= 8) ? 'block' : 'none';
-    }
-
-    /**
-     * Manejador del botón "Siguiente" / "Confirmar"
-     */
+    // --- Lógica de Navegación con saltos condicionales ---
     document.getElementById('nextBtn').onclick = () => {
-        // Ejecución de validaciones externas si están presentes en los scripts de cada paso
-        if (currentStep === 1 && typeof validarPaso1 === 'function') {
-            if (!validarPaso1()) return; // Detiene el avance si falla la validación
-        }
-
-        // Lógica de negocio: Bloqueo de beca si el usuario trabaja (Paso 3)
-        if (currentStep === 3) {
-            alert("⚠️ No podrás solicitar la beca, puesto que al poseer un trabajo no cumples con los requisitos.");
-            return;
-        }
-
-        if (currentStep === 6 && typeof validarRecord === 'function') {
-            if (!validarRecord()) return;
-        }
-
-        // Persiste los datos antes de cambiar de vista
-        window.saveCurrentData();
-
-        // Lógica de "Salto" (Skipping): Si en el paso 2 indica que NO trabaja, se salta el paso 3 (Laboral)
-        if (currentStep === 2 && !window.formDataStorage['trabaja']) {
-            currentStep = 4;
-        } else {
-            currentStep++;
-        }
+        if (currentStep === 1 && typeof validarPaso1 === 'function' && !validarPaso1()) return;
         
-        loadStep(currentStep);
+        window.saveCurrentData(); // Guardamos los datos primero para saber si trabaja o no
+        
+        const pasosActivos = obtenerPasosActivos();
+        const currentIndex = pasosActivos.indexOf(currentStep);
+        
+        // Avanzamos al siguiente paso en el arreglo de pasos activos
+        if (currentIndex < pasosActivos.length - 1) {
+            currentStep = pasosActivos[currentIndex + 1];
+            loadStep(currentStep);
+        }
     };
 
-    /**
-     * Manejador del botón "Atrás"
-     */
     document.getElementById('prevBtn').onclick = () => {
         window.saveCurrentData();
-
-        // Lógica inversa del salto: Si retrocede desde el paso 4 y no trabaja, vuelve al paso 2
-        if (currentStep === 4 && !window.formDataStorage['trabaja']) {
-            currentStep = 2;
-        } else {
-            currentStep--;
+        
+        const pasosActivos = obtenerPasosActivos();
+        const currentIndex = pasosActivos.indexOf(currentStep);
+        
+        // Retrocedemos al paso anterior en el arreglo de pasos activos
+        if (currentIndex > 0) {
+            currentStep = pasosActivos[currentIndex - 1];
+            loadStep(currentStep);
         }
-
-        loadStep(currentStep);
     };
 
-    // Ejecución inicial para mostrar el paso 1 al cargar el sitio
+    // Carga inicial
     loadStep(currentStep);
 });
