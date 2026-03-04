@@ -5,7 +5,7 @@
  */
 document.addEventListener('DOMContentLoaded', () => {
     // --- ESTADO INICIAL ---
-    let currentStep = 1; // Rastrea el paso actual del formulario
+    let currentStep = 2; // Rastrea el paso actual del formulario
     const totalSteps = 10; // Límite total de pantallas definidas
     
     // Referencias a elementos clave del DOM
@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             script.onload = () => {
                 if (stepNumber === 1 && typeof initIdentificacion === 'function') initIdentificacion();
+                if (stepNumber === 2 && typeof initResidencia === 'function') initResidencia();
                 if (stepNumber === 5 && typeof initMaterias === 'function') initMaterias();
                 if (stepNumber === 6 && typeof initRecord === 'function') initRecord();
                 if (stepNumber === 7 && typeof initFamiliares === 'function') initFamiliares();
