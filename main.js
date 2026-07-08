@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Inicializa los pasos iniciales
-    let currentStep = 5;
+    let currentStep = 1;
     let maxStepReached = 1; 
     window.formSubmitted = false; 
     const totalSteps = 7;
