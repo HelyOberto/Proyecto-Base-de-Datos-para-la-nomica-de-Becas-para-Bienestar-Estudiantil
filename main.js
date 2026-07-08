@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let currentStep = 1;
+    // Inicializa los pasos iniciales
+    let currentStep = 5;
     let maxStepReached = 1; 
     window.formSubmitted = false; 
     const totalSteps = 7;
@@ -7,9 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const viewPort = document.getElementById('dynamic-content'); 
     const progressBar = document.getElementById('progressBar'); 
     
+    // Oculta los contenedores que no pertenecen al perfil
     const userRole = document.body.getAttribute('data-rol');
     if (userRole === 'estudiante') {
-        // Ocultamos los contenedores que no pertenecen al perfil
         const navContainer = document.getElementById('nav-buttons');
         const progContainer = document.getElementById('progress-wrapper');
         if(navContainer) navContainer.style.display = 'none';
@@ -21,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.formDataStorage = {}; 
 
+    // Carpetas de cada paso
     const folderMap = {
         1: "identificacion",
         2: "residencia",
@@ -30,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
         6: "verificacion",
         7: "pantalla_de_exito"
     };
+
+    // Extrae los datos de cada input de cada paso y se encarga que no se pierdan
     window.saveCurrentData = () => {
         const viewPort = document.getElementById('dynamic-content');
         const inputs = viewPort.querySelectorAll('input, select, textarea');
@@ -42,15 +46,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     valueToSave = input.checked;
                 } 
                 else if (input.type === 'radio') {
-                    if (input.checked) valueToSave = input.value;
-                    else return; // No guardar radios no seleccionados
+                    // No guardar radios no seleccionados
+                    if (input.checked) 
+                        valueToSave = input.value;
+                    else return; 
                 } 
                 else {
                     valueToSave = input.value;
                 }
 
-                // --- FILTRO DE LIMPIEZA ---
-                // Si es un texto, reemplazamos guiones bajos por espacios
+                // Para evitar problemas, los espacion se reemplazan con '_'
                 if (typeof valueToSave === 'string') {
                     valueToSave = valueToSave.replace(/_/g, ' ');
                 }
@@ -60,9 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    /**
-     * Restaura datos guardados
-     */
+    // Cuando el usuario retrocede, este de encarga de poner rellemar mieva,emte la informacion
     window.restoreDataGlobal = () => {
         const viewPort = document.getElementById('dynamic-content');
         const inputs = viewPort.querySelectorAll('input, select, textarea');
@@ -77,9 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    /**
-     * Carga dinámica de pasos
-     */
+    // Este se encarga de cargar cada uno de los pasos tomando en cuenta el foldermap y los pasos definidos al inicio
     async function loadStep(stepNumber) {
         stepNumber = Number(stepNumber) || 1;
         currentStep = stepNumber; 
@@ -87,13 +88,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const folder = folderMap[stepNumber];
         if (!folder) return;
 
-        if (stepNumber > maxStepReached) maxStepReached = stepNumber;
+        if (stepNumber > maxStepReached) 
+            maxStepReached = stepNumber;
 
         if(viewPort) {
             viewPort.classList.add('loading');
             viewPort.innerHTML = '<div style="text-align:center; padding:50px; color:#666;">Cargando paso...</div>';
         }
         
+        //Aca se guardan las direcciones (Estas son relativas al lugar donde se mandan)
         const htmlPath = `${folder}/view.php`; 
         const scriptPath = `${folder}/script.js`;
 
@@ -107,7 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             window.restoreDataGlobal();
             if(typeof updateMenuState === 'function') updateMenuState(stepNumber);
-
+            
+            // Cada Step pose su propio Script, por lo que debemos eliminar el que ya tengamos en uso para utilizar el nuevo
             const oldScript = document.getElementById('step-script');
             if (oldScript) oldScript.remove();
 
@@ -115,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             script.id = 'step-script';
             script.src = `${scriptPath}?v=${Date.now()}`;
             
+            //Esta son las funciones de cada script, cada uno sigue una nomenclatura exeptuando los ultimos dos
             script.onload = () => {
                 const initFuncs = {
                     1: 'initIdentificacion',
@@ -129,8 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (funcName && typeof window[funcName] === 'function') {
                     window[funcName]();
                 }
-                
-                // IMPORTANTE: Llamar a la validación aquí
                 validarFormularioActual(); 
             };
 
@@ -140,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             document.body.appendChild(script);
 
-            // 4. Actualizar botones y progreso
             actualizarInterfaz(stepNumber);
 
         } catch (e) { 
@@ -155,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
             }
         } finally {
-            // Quitar clase de carga
+            // Quita clase de carga
             setTimeout(() => { 
                 if(viewPort) viewPort.classList.remove('loading'); 
             }, 150);
@@ -164,38 +166,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Lógica para el botón "Borrar formulario"
     const btnLimpiar = document.getElementById('btnLimpiarRegistro');
-if (btnLimpiar) {
+    if (btnLimpiar) {
         btnLimpiar.onclick = (e) => {
             e.preventDefault();
 
             if (confirm("¿Deseas limpiar los campos de esta página actual?")) {
                 const viewPort = document.getElementById('dynamic-content');
                 const inputs = viewPort.querySelectorAll('input, select, textarea');
-                const errorText = document.getElementById('error-pass'); // El texto de advertencia
+                // De ocurrir un error, ha de mostrarse aqui
+                const errorText = document.getElementById('error-pass'); 
 
                 inputs.forEach(input => {
-                    // 1. Limpieza visual (aplica a TODOS los inputs del viewport)
+                    // Limpiamos el formulario visualmente y dentrode la memoria
                     if (input.type === 'checkbox' || input.type === 'radio') {
                         input.checked = false;
                     } else {
                         input.value = "";
                     }
 
-                    // 2. Limpieza de memoria (solo si tienen 'name')
                     if (input.name) {
                         delete window.formDataStorage[input.name];
                     }
                     
-                    // 3. Reset de estilos visuales de error (específico para contraseñas)
+                    // Esto especficamente sirve para deshacer el borde rojo de error cuando metes la contrasena
                     input.style.borderColor = '#ddd';
                 });
 
-                // 4. Ocultamos el textico de error si existe
+                // Si hubo un error lo quitamos
                 if (errorText) {
                     errorText.style.display = 'none';
                 }
 
-                // 5. Forzamos re-validación
                 validarFormularioActual();
                 
                 console.log("Campos de la página actual y confirmación de contraseña limpiados.");
@@ -210,14 +211,15 @@ if (btnLimpiar) {
         btnVolver.onclick = (e) => {
             // Si el formulario ya se envió (paso 7) o está en el primer paso vacío, no preguntamos
             if (window.formSubmitted || currentStep >= 7) {
-                return true; // Permite la navegación normal
+                return true;
             }
 
             // Si hay datos, pedimos confirmación
             const confirmacion = confirm("¿Estás seguro de que quieres salir? Se perderá el progreso que no haya sido guardado en el sistema.");
-            
+
+            // Cancela el redireccionamiento a index.php
             if (!confirmacion) {
-                e.preventDefault(); // Cancela el redireccionamiento a index.php
+                e.preventDefault(); 
             }
         };
     }
@@ -247,10 +249,7 @@ if (btnLimpiar) {
         }
     }
 
-    /**
-     * Valida los campos 'required' del paso actual.
-     * Pone bordes rojos y deshabilita el botón 'Siguiente' si falta algo.
-     */
+    // Funcion general engargada la validación de los datos marcados en "required" y marcarlos al usuario de ser necesario
     function validarFormularioActual() {
         const viewPort = document.getElementById('dynamic-content');
         const nextBtn = document.getElementById('nextBtn');
@@ -329,7 +328,7 @@ if (btnLimpiar) {
      * Gestiona la visibilidad y estados de los elementos de navegación
      */
     function actualizarInterfaz(step) {
-    // 1. Barra de progreso (ahora se calcula sobre 7)
+    // 1. Barra de progreso
     if (progressBar) {
         progressBar.style.width = `${(step / totalSteps) * 100}%`;
     }

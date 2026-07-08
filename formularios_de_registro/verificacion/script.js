@@ -198,3 +198,35 @@ function renderResumen() {
     
     container.innerHTML = html;
 }
+
+function resetFormulario() {
+    if (!confirm("¿Estás seguro de que deseas borrar todos los datos y empezar de nuevo?")) return;
+
+    // 1. Limpiar el almacenamiento global en memoria
+    window.formDataStorage = {};
+
+    // 2. Limpiar persistencia local por si se usa como respaldo
+    localStorage.removeItem('formDataStorage');
+    sessionStorage.removeItem('formDataStorage');
+
+    // 3. Resetear elementos de formulario si existen en el DOM
+    const formulario = document.querySelector('form');
+    if (formulario) {
+        formulario.reset();
+    } else {
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.type === 'checkbox' || el.type === 'radio') {
+                el.checked = false;
+            } else {
+                el.value = '';
+            }
+        });
+    }
+
+    // 4. Vaciar el contenedor que renderiza el resumen final
+    const container = document.getElementById('panel-edicion-global');
+    if (container) container.innerHTML = '';
+
+    // 5. Reiniciar la aplicación al estado inicial
+    window.location.reload(); 
+}
