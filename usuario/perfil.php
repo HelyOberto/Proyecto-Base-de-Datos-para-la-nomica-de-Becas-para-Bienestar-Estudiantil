@@ -9,6 +9,7 @@ if (!$user_id) {
     exit;
 }
 
+// Limpieza de strings para que queden estéticos en la interfaz
 function normalizar($texto) {
     if (!$texto) return 'N/A';
     $limpio = str_replace('_', ' ', $texto);
@@ -16,6 +17,7 @@ function normalizar($texto) {
 }
 
 try {
+    // Buscamos los datos básicos del estudiante y su dirección asignada
     $stmt = $pdo->prepare("
         SELECT 
             e.*, 
@@ -38,13 +40,12 @@ try {
     exit;
 }
 
-// --- LÓGICA PARA LA TABLA DE FAMILIARES CON CLASIFICACIÓN ---
-// Ordenamos por clasificación para agruparlos correctamente en el renderizado
+// Carga de familiares agrupados por su nivel de carga/clasificación
 $stmtFam = $pdo->prepare("SELECT * FROM familiar WHERE ci_estudiante = ? ORDER BY FIELD(f_clasificacion, 'primaria', 'secundaria', 'otros'), id ASC");
 $stmtFam->execute([$estudiante['ci']]);
 $familiares = $stmtFam->fetchAll(PDO::FETCH_ASSOC);
 
-// Mapeo estético de las clasificaciones para los subtítulos divisores
+// Estilos dinámicos para los bloques separadores en la tabla
 $subtitulos_grupos = [
     'primaria'   => ['titulo' => '👨‍👩‍👧‍👦 Familia Primaria', 'bg' => '#f0fff4', 'texto' => '#22543d', 'border' => '#48bb78'],
     'secundaria' => ['titulo' => '🏡 Carga Secundaria', 'bg' => '#fffaf0', 'texto' => '#744210', 'border' => '#ed8936'],
@@ -72,7 +73,7 @@ if (empty($familiares)) {
     foreach ($familiares as $f) {
         $grupo_actual = $f['f_clasificacion'] ?? 'otros'; 
 
-        // Si cambia el grupo o es el primero, renderizamos un separador visual descriptivo
+        // Si cambia el bloque de parentesco, metemos la fila divisoria correspondiente
         if ($grupo_actual !== $ultimo_grupo) {
             $conf = $subtitulos_grupos[$grupo_actual] ?? $subtitulos_grupos['otros'];
             $tabla_familia .= "

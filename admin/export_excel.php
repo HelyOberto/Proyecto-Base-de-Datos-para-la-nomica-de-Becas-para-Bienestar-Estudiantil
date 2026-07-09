@@ -3,12 +3,12 @@ ob_start();
 session_start();
 require '../base_de_datos/db.php';
 
-// 1. Verificación de sesión
+// Valida que el usuario tenga sesión activa y privilegios de administrador
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
     die("Acceso denegado.");
 }
 
-// Función de bitácora (asegurando que exista)
+// Declara la función para guardar acciones en la base de datos si no ha sido definida previamente
 if (!function_exists('registrarMovimiento')) {
     function registrarMovimiento($pdo, $usuario_id, $accion, $tabla, $detalles = null) {
         $stmt = $pdo->prepare('INSERT INTO bitacora (usuario_id, accion, tabla_afectada, detalles) VALUES (?, ?, ?, ?)');
@@ -16,7 +16,7 @@ if (!function_exists('registrarMovimiento')) {
     }
 }
 
-// --- REGISTRO EN BITÁCORA ---
+// Guarda un registro de auditoría indicando la descarga del reporte excel
 if (isset($_SESSION['user_id'])) {
     registrarMovimiento(
         $pdo, 
@@ -27,7 +27,7 @@ if (isset($_SESSION['user_id'])) {
     );
 }
 
-// 2. Query Corregida según tu SQL Dump (Eliminada la columna inexistente 'parroquia_res')
+// Obtiene los datos de los estudiantes vinculados a su información residencial y académica
 $query = $pdo->query("
     SELECT 
         e.*, 
@@ -40,9 +40,9 @@ $query = $pdo->query("
 ");
 $data = $query->fetchAll(PDO::FETCH_ASSOC);
 
-// 3. Preparación del archivo
 $filename = "reporte_becas_completo_" . date('Y-m-d') . ".xls";
 
+// Limpia el buffer de salida y establece las cabeceras HTTP para forzar la descarga del archivo
 if (ob_get_length()) ob_clean();
 
 header('Content-Type: application/vnd.ms-excel; charset=UTF-8');

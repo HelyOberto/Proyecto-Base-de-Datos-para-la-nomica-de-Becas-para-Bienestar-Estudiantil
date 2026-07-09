@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. CONFIGURACIÓN Y FUENTES
+   CONFIGURACIÓN Y FUENTES GLOBAL
    ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
@@ -14,7 +14,7 @@
 }
 
 /* ==========================================================================
-   2. ESTILOS BASE
+   ESTILOS BASE DE LA PÁGINA
    ========================================================================== */
 body {
     background: linear-gradient(135deg, rgba(0,0,0,0.85), rgba(20,20,20,0.85)), url('../img/fondo.webp');
@@ -27,13 +27,11 @@ body {
     min-height: 100vh;
     margin: 0;
     align-items: center;
-    opacity: 0; 
-    transition: opacity 0.5s ease;
-    opacity: 1; /* Aseguramos que sea visible siempre al cargar */
+    opacity: 1; /* Forzamos visibilidad directa en la carga */
     transition: opacity 0.4s ease;
 }
 
-/* Solo se desvanece si el contenedor TIENE la clase, no por defecto */
+/* Control de transiciones del contenedor principal (Efecto SPA) */
 #main-container.fade-out {
     opacity: 0 !important;
     pointer-events: none;
@@ -48,7 +46,7 @@ a { color: var(--primary-light); text-decoration: none; transition: color 0.2s; 
 a:hover { color: var(--primary-dark); }
 
 /* ==========================================================================
-   3. LAYOUT (CONTENEDORES)
+   LAYOUT Y ESTRUCTURA DE CONTENEDORES
    ========================================================================== */
 #main-container {
     background: var(--glass-bg);
@@ -87,7 +85,7 @@ a:hover { color: var(--primary-dark); }
 }
 
 /* ==========================================================================
-   4. FORMULARIOS (Inputs y Radios)
+   ELEMENTOS DE FORMULARIO (INPUTS, RADIOS Y SELECTS)
    ========================================================================== */
 .grid-container {
     display: grid;
@@ -104,7 +102,7 @@ label {
     color: #444;
 }
 
-/* Busca el label que está justo antes de un input que NO es requerido */
+/* Inyección de etiqueta dinámica para campos opcionales */
 label:has(+ input:not([required])):after,
 label:has(+ select:not([required])):after,
 label:has(+ textarea:not([required])):after {
@@ -115,7 +113,6 @@ label:has(+ textarea:not([required])):after {
     margin-left: 4px;
 }
 
-/* Solo afecta a inputs de texto/número/fecha */
 input:not([type="radio"]):not([type="checkbox"]), 
 select, 
 textarea { 
@@ -136,16 +133,16 @@ input:focus, select:focus, textarea:focus {
 }
 
 select {
-    height: 41px; /* Ajuste aproximado basado en tu padding de 10px + font-size */
-    appearance: none; /* Elimina el estilo por defecto del sistema (flecha fea) */
+    height: 41px; 
+    appearance: none; /* Quitamos la flecha por defecto del sistema */
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 16px;
-    padding-right: 40px !important; /* Espacio para la nueva flecha */
+    padding-right: 40px !important; 
 }
 
-/* --- ESTILO PERSONALIZADO DE RADIO BUTTONS --- */
+/* Estilos personalizados para los Radio Buttons */
 .checkbox-group {
     margin-top: 20px;
     padding: 15px;
@@ -170,10 +167,9 @@ select {
     font-weight: 500;
 }
 
-/* Importante: Evitar que el radio herede el width 100% */
 .radio-item input[type="radio"] {
     appearance: none;
-    width: 18px !important;
+    width: 18px !important; /* Capamos el ancho para que no herede el 100% general */
     height: 18px !important;
     border: 2px solid #ccc;
     border-radius: 50%;
@@ -195,7 +191,7 @@ select {
 }
 .radio-item input[type="radio"]:checked::before { transform: scale(1); }
 
-/* --- MEJORAS TABLA FAMILIARES --- */
+/* Ajustes de la tabla dinámica de familiares */
 .table-responsive {
     background: white;
     border-radius: 12px;
@@ -211,7 +207,7 @@ select {
 }
 
 #cuerpo-tabla tr:hover {
-    background-color: #fffaf5; /* Un toque naranja muy sutil */
+    background-color: #fffaf5; 
 }
 
 #cuerpo-tabla td {
@@ -219,7 +215,6 @@ select {
     vertical-align: middle;
 }
 
-/* Estilo para los inputs dentro de la tabla */
 #cuerpo-tabla input {
     border: 1px solid #e0e0e0;
     padding: 8px;
@@ -233,7 +228,6 @@ select {
     border-color: #eee;
 }
 
-/* Botón de eliminar más elegante */
 .btn-remove {
     width: 28px;
     height: 28px;
@@ -250,7 +244,6 @@ select {
     transform: scale(1.1);
 }
 
-/* Estilo para el botón de añadir cuando está bloqueado */
 .btn-add:disabled {
     background: #ccc !important;
     cursor: not-allowed;
@@ -258,10 +251,8 @@ select {
     box-shadow: none !important;
 }
 
-
-
 /* ==========================================================================
-   5. BOTONES DE NAVEGACIÓN (Reparados)
+   BOTONES DE NAVEGACIÓN DE FLUJO
    ========================================================================== */
 .nav-buttons { 
     margin-top: 30px; 
@@ -270,7 +261,6 @@ select {
     gap: 15px; 
 }
 
-/* Estilo unificado para los botones del SPA */
 .nav-buttons button { 
     flex: 1; 
     padding: 14px 20px; 
@@ -293,10 +283,8 @@ select {
     filter: brightness(1.1);
 }
 
-
-
 /* ==========================================================================
-   6. OTROS COMPONENTES
+   COMPONENTES DE SEGUIMIENTO Y RESUMEN (PANTALLA FINAL)
    ========================================================================== */
 .progress-wrapper {
     background: #e0e0e0;
@@ -313,7 +301,7 @@ select {
     transition: width 0.4s ease;
 }
 
-/* Contenedor del Slide Enorme */
+/* Contenedor del panel de confirmación de datos */
 .resumen-texto-container {
     background: #fff !important;
     padding: 30px;
@@ -353,13 +341,12 @@ select {
     text-align: right;
 }
 
-
 .oculto { display: none !important; }
 .full-width { grid-column: 1 / -1; }
 
-/* Estilos para la iconografía de éxito */
+/* Vista final de Éxito */
 .success-icon {
-    width: 100px; /* Aumentado de 80px */
+    width: 100px; 
     height: 100px;
     background: #28a745;
     color: white;
@@ -367,12 +354,13 @@ select {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3.5rem; /* Icono mucho más grande */
+    font-size: 3.5rem; 
     margin: 0 auto 25px;
     box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
     animation: scaleIn 0.5s ease-out;
 }
 
+/* Formateo del sufijo en el campo del IRA */
 .input-group-ira {
     position: relative;
     display: flex;
@@ -381,7 +369,7 @@ select {
 
 .input-group-ira input {
     width: 100%;
-    padding-right: 45px; /* Espacio para el /20 */
+    padding-right: 45px; 
 }
 
 .input-suffix {
@@ -389,21 +377,21 @@ select {
     right: 15px;
     color: #666;
     font-weight: bold;
-    pointer-events: none; /* Para que el click pase al input */
+    pointer-events: none; 
 }
 
-/* Ocultar flechas en Chrome, Safari, Edge y Opera */
+/* Capamos las flechas nativas del input de tipo número */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Ocultar flechas en Firefox */
 input[type=number] {
   -appearance: textfield;
 }
 
+/* Animaciones del flujo de la interfaz */
 @keyframes scaleIn {
     0% { transform: scale(0); }
     80% { transform: scale(1.1); }
@@ -415,6 +403,7 @@ input[type=number] {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Adaptación responsive para pantallas pequeñas */
 @media (max-width: 700px) {
     .grid-container { grid-template-columns: 1fr; }
     .pregunta-row { flex-direction: column; align-items: flex-start; gap: 10px; }

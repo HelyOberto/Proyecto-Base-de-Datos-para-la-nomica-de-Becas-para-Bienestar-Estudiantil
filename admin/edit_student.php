@@ -12,23 +12,21 @@ if (!isset($_SESSION['user']) || (isset($_SESSION['rol']) && $_SESSION['rol'] !=
 $ci = $_GET['id'] ?? null;
 if (!$ci) { header('Location: index.php'); exit; }
 
-/**
- * Función para generar IDs manuales en tablas donde TiDB no lo hace automáticamente
- */
+// ID manual para tablas donde TiDB no usa auto_random
 function generarIdManual() {
     return mt_rand(100000, 99999999);
 }
 
-// --- LÓGICA DE GUARDADO ---
+// Lógica de guardado
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_all'])) {
     try {
         $pdo->beginTransaction();
         
-        // 1. Preparación de datos (Observaciones e IRA)
+        // Formateo de datos opcionales
         $obs = !empty($_POST['observaciones']) ? $_POST['observaciones'] : "Sin observaciones adicionales.";
         $ira = !empty($_POST['indice']) ? $_POST['indice'] : 0.00;
 
-        // 2. Actualización de Estudiante (Incluye todos los campos e IRA/Observaciones)
+        // Actualizar datos del estudiante
         $stmt = $pdo->prepare('UPDATE estudiante SET 
             nombre1=?, nombre2=?, apellido_paterno=?, apellido_materno=?, 
             f_nac=?, carrera=?, trayecto=?, trimestre=?, cod_est=?, 
@@ -45,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_all'])) {
             $ira, $ci
         ]);
         
-        // 3. Actualización de Residencia (Se añade dir_procedencia)
+        // Actualizar dirección y datos de residencia
         $pdo->prepare('UPDATE residencia SET 
             t_res=?, t_viv=?, t_loc=?, r_prop=?, estado_res=?, municipio_res=?, dir_local=?, dir_procedencia=?, tel_local=? 
             WHERE ci_estudiante=?')
@@ -55,13 +53,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_all'])) {
                 $_POST['dir_procedencia'] ?? null, $_POST['telefono_res'], $ci
             ]);
         
-        // 4. Familiares (Estructura Dinámica idéntica a la vista del Estudiante)
+        // Reconstrucción de la carga familiar dinámica
         $pdo->prepare('DELETE FROM familiar WHERE ci_estudiante = ?')->execute([$ci]);
         
         $estructuraTable = $_POST['estructura_tabla'] ?? null;
 
         if (!empty($estructuraTable) && is_array($estructuraTable)) {
-            $grupoClasificacionActual = 'otros'; // Por defecto
+            $grupoClasificacionActual = 'otros';
 
             $stmt_fam = $pdo->prepare('INSERT INTO familiar (id, ci_estudiante, f_nom, f_ape, f_par, f_eda, f_ins, f_ocu, f_ing, f_clasificacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 
@@ -96,22 +94,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_all'])) {
             }
         }
 
-        // 5. Lógica de Seguridad (Actualización de credenciales de acceso)
+        // Actualización de credenciales de acceso de la cuenta del estudiante
         $pregunta = $_POST['pregunta_seguridad'] ?? '';
         $respuesta = $_POST['respuesta_seguridad'] ?? '';
         
         if (!empty($_POST['reg_password'])) {
-            // Si el administrador cambió la contraseña, se actualiza todo (incluyendo clave)
             $pass_hash = password_hash($_POST['reg_password'], PASSWORD_BCRYPT);
             $stmt_user = $pdo->prepare('UPDATE usuarios SET password = ?, pregunta_seguridad = ?, respuesta_seguridad = ? WHERE usuario = ?');
             $stmt_user->execute([$pass_hash, $pregunta, $respuesta, $ci]);
         } elseif (!empty($pregunta)) {
-            // Si no cambió la contraseña pero sí eligió una pregunta de seguridad
             $stmt_user = $pdo->prepare('UPDATE usuarios SET pregunta_seguridad = ?, respuesta_seguridad = ? WHERE usuario = ?');
             $stmt_user->execute([$pregunta, $respuesta, $ci]);
         }
         
-        // 6. Registro en Bitácora (Omitimos 'id' para que TiDB use AUTO_RANDOM)
+        // Registro de la acción del administrador en la bitácora
         $admin_id = $_SESSION['user_id'] ?? null; 
         if ($admin_id) {
             $detalles = "Se editó el expediente del estudiante C.I. $ci. Se actualizaron datos personales, familiares (con clasificación) y dirección de procedencia.";
@@ -129,8 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_all'])) {
     }
 }
 
-// --- CARGA DE DATOS PARA EL FORMULARIO ---
-// Se añade r.dir_procedencia a la consulta de selección inicial
+// Carga de datos para el formulario
 $stmt = $pdo->prepare('SELECT e.*, r.t_res, r.t_viv, r.t_loc, r.r_prop, r.estado_res, r.municipio_res, r.dir_local, r.dir_procedencia, r.tel_local 
                        FROM estudiante e 
                        LEFT JOIN residencia r ON e.ci = r.ci_estudiante 
@@ -138,7 +133,7 @@ $stmt = $pdo->prepare('SELECT e.*, r.t_res, r.t_viv, r.t_loc, r.r_prop, r.estado
 $stmt->execute([$ci]);
 $std = $stmt->fetch();
 
-// Mapeamos para compatibilidad con tus campos del HTML
+// Mapeo para compatibilidad con los campos del HTML viejo
 if ($std) {
     $std['ra_indice'] = $std['ira_anterior'];
 }
@@ -147,7 +142,7 @@ $fams = $pdo->prepare('SELECT * FROM familiar WHERE ci_estudiante = ?');
 $fams->execute([$ci]);
 $lista_familiares = $fams->fetchAll();
 
-// Fechas para restricciones del input date
+// Restricciones de rango de edad para la interfaz
 $fecha_hoy = new DateTime();
 $max_date = (clone $fecha_hoy)->modify('-5 years')->format('Y-m-d');
 $min_date = (clone $fecha_hoy)->modify('-50 years')->format('Y-m-d');
@@ -576,23 +571,22 @@ $min_date = (clone $fecha_hoy)->modify('-50 years')->format('Y-m-d');
 </div>
 
 <script>
+// Variables globales cargadas desde PHP
 window.formDataStorage = {};
 window.familiaresExistentes = <?php echo json_encode($lista_familiares ?: []); ?>;
 const carreraGuardada = "<?php echo $std['carrera'] ?? ''; ?>";
 const currentEstado = "<?php echo $std['estado_res'] ?? ''; ?>";
 const currentMunicipio = "<?php echo $std['municipio_res'] ?? ''; ?>";
 
+// Inicialización de módulos al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
-    // Inicialización de módulos del Administrador
     initFamiliaresAdmin();
     initAcademicoEdicion();
     initResidencia();
     initSeguridadEventos();
 });
 
-/**
- * LÓGICA DE CARGA FAMILIAR INTERACTIVA (Con Drag & Drop nativo y consistencia visual)
- */
+// Módulo: Gestión dinámica de carga familiar
 function initFamiliaresAdmin() {
     const cuerpoTabla = document.getElementById('cuerpo-tabla');
     const btnAgregar = document.getElementById('btn-agregar');
@@ -603,6 +597,7 @@ function initFamiliaresAdmin() {
 
     if (!cuerpoTabla || !btnAgregar || !checkNoFamiliares || !btnDropdown || !menuDropdown) return;
 
+    // Estilos por herencia posicional de grupos
     const coloresConfig = {
         'primaria': { separador: '#c6f6d5', texto: '#22543d', filas: '#f0fff4' },
         'secundaria': { separador: '#feebc8', texto: '#744210', filas: '#fffaf0' },
@@ -615,7 +610,7 @@ function initFamiliaresAdmin() {
         'otros': '🔗 Otros Parientes'
     };
 
-    // Control de visibilidad del Dropdown de Clasificaciones
+    // Control de visibilidad del menú de clasificaciones
     btnDropdown.onclick = (e) => {
         e.stopPropagation();
         menuDropdown.style.display = menuDropdown.style.display === 'block' ? 'none' : 'block';
@@ -623,7 +618,7 @@ function initFamiliaresAdmin() {
 
     document.addEventListener('click', () => { menuDropdown.style.display = 'none'; });
 
-    // Deshabilita del menú contextual las clasificaciones ya impresas
+    // Deshabilita del dropdown los grupos ya agregados a la tabla
     function actualizarOpcionesDropdown() {
         const existentes = Array.from(cuerpoTabla.querySelectorAll('.fila-separador')).map(tr => tr.getAttribute('data-grupo'));
         menuDropdown.querySelectorAll('a').forEach(enlace => {
@@ -640,7 +635,7 @@ function initFamiliaresAdmin() {
         });
     }
 
-    // Pinta las filas de datos con el color del grupo correspondiente según herencia posicional
+    // Refresca el fondo de las filas según el separador que tengan arriba
     function actualizarPertenenciaVisual() {
         let grupoActive = 'primaria';
         Array.from(cuerpoTabla.children).forEach(tr => {
@@ -653,11 +648,9 @@ function initFamiliaresAdmin() {
         actualizarOpcionesDropdown();
     }
 
-    /**
-     * ASIGNACIÓN DE MANEJADORES DRAG & DROP NATIVOS
-     */
     let filaArrastrada = null;
 
+    // Configuración de eventos Drag & Drop nativos
     function hacerElementoArrastrable(tr) {
         tr.setAttribute('draggable', 'true');
         tr.style.cursor = 'move';
@@ -722,28 +715,28 @@ function initFamiliaresAdmin() {
         });
     }
 
-    // Inyección de una nueva Fila de Datos (Corregida con la X estilizada)
+    // Genera una nueva fila de datos estructurada
     function crearFilaHTML(id) {
         const tr = document.createElement('tr');
         tr.className = 'fila-datos';
         tr.setAttribute('data-id', id);
         tr.innerHTML = `
             <input type="hidden" name="estructura_tabla[]" value="fila:${id}">
-            <td><input type="text" name="f_nom_${id}" required style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
-            <td><input type="text" name="f_ape_${id}" required style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
-            <td><input type="text" name="f_par_${id}" required style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
-            <td><input type="number" name="f_eda_${id}" min="0" max="120" required style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
-            <td><input type="text" name="f_ins_${id}" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
-            <td><input type="text" name="f_ocu_${id}" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
-            <td><input type="number" name="f_ing_${id}" step="0.01" min="0" value="0.00" style="width:100%; padding:5px; border:1px solid #ccc; border-radius:4px;"></td>
-            <td style="text-align:center;"><button type="button" class="btn-remove" title="Remover fila" style="background:#fff; border:1px solid #cbd5e0; color:#e53e3e; font-size:1.1rem; font-weight:bold; width:28px; height:28px; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition: all 0.2s;">&times;</button></td>
+            <td><input type="text" name="f_nom_${id}" required style="width:100%;"></td>
+            <td><input type="text" name="f_ape_${id}" required style="width:100%;"></td>
+            <td><input type="text" name="f_par_${id}" required style="width:100%;"></td>
+            <td><input type="number" name="f_eda_${id}" min="0" max="120" required style="width:100%;"></td>
+            <td><input type="text" name="f_ins_${id}" style="width:100%;"></td>
+            <td><input type="text" name="f_ocu_${id}" style="width:100%;"></td>
+            <td><input type="number" name="f_ing_${id}" step="0.01" min="0" value="0.00" style="width:100%;"></td>
+            <td style="text-align:center;"><button type="button" class="btn-remove" title="Remover fila">&times;</button></td>
         `;
         cuerpoTabla.appendChild(tr);
         hacerElementoArrastrable(tr);
         return tr;
     }
 
-    // Evento de inserción manual de clasificaciones (Ya NO crea fila vacía abajo y usa la X estilizada)
+    // Inserción manual de filas separadoras de grupo
     menuDropdown.querySelectorAll('a').forEach(enlace => {
         enlace.onclick = (e) => {
             e.preventDefault();
@@ -757,7 +750,7 @@ function initFamiliaresAdmin() {
             trSep.style.fontWeight = 'bold';
             trSep.innerHTML = `
                 <td colspan="7" style="padding: 10px 12px;">${titulosConfig[valor]}<input type="hidden" name="estructura_tabla[]" value="separador:${valor}"></td>
-                <td style="text-align:center;"><button type="button" class="btn-remove-separador" data-valor="${valor}" title="Remover Clasificación" style="background:#fff; border:1px solid #cbd5e0; color:#e53e3e; font-size:1.1rem; font-weight:bold; width:28px; height:28px; border-radius:50%; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition: all 0.2s;">&times;</button></td>
+                <td style="text-align:center;"><button type="button" class="btn-remove-separador" data-valor="${valor}" title="Remover Clasificación">&times;</button></td>
             `;
             cuerpoTabla.appendChild(trSep);
             hacerElementoArrastrable(trSep);
@@ -771,7 +764,7 @@ function initFamiliaresAdmin() {
         actualizarPertenenciaVisual();
     };
 
-    // Delegación de eventos para Remover filas y separadores
+    // Delegación de eventos para remover elementos de la tabla
     cuerpoTabla.onclick = (e) => {
         const btnRemove = e.target.closest('.btn-remove');
         if (btnRemove) {
@@ -795,7 +788,7 @@ function initFamiliaresAdmin() {
         }
     };
 
-    // Comportamiento del interruptor "El estudiante vive solo"
+    // Modifica la disponibilidad y validación si el estudiante vive solo
     function gestionarEstadoNoFamiliares() {
         const inactivo = checkNoFamiliares.checked;
         cuerpoTabla.querySelectorAll('input, button').forEach(el => { el.disabled = inactivo; });
@@ -827,14 +820,14 @@ function initFamiliaresAdmin() {
 
     checkNoFamiliares.addEventListener('change', gestionarEstadoNoFamiliares);
 
-    // Inicializar elementos preexistentes renderizados por PHP en la carga inicial
+    // Preparar filas existentes renderizadas por PHP
     Array.from(cuerpoTabla.children).forEach(tr => {
         if (tr.classList.contains('fila-datos') || tr.classList.contains('fila-separador')) {
             hacerElementoArrastrable(tr);
         }
     });
 
-    // Carga de datos iniciales provenientes de Base de Datos
+    // Evaluar estado inicial según los registros de la base de datos
     if (window.familiaresExistentes && window.familiaresExistentes.length > 0) {
         checkNoFamiliares.checked = false;
         actualizarPertenenciaVisual();
@@ -845,9 +838,7 @@ function initFamiliaresAdmin() {
     }
 }
 
-/**
- * GESTIÓN ACADÉMICA (Carreras PNF e Incidencias del Trayecto Inicial)
- */
+// Módulo: Carga académica externa e incidencias de trayecto
 async function initAcademicoEdicion() {
     const carreraSelect = document.getElementById('carreraSelect');
     const trayectoSelect = document.getElementById('trayectoSelect');
@@ -860,31 +851,31 @@ async function initAcademicoEdicion() {
             const carreras = await response.json();
             
             carreraSelect.innerHTML = '<option value="" disabled>Seleccione PNF</option>';
-            crawlers = carreras.forEach(c => {
+            carreras.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c.id; 
                 opt.textContent = c.nombre;
                 if(c.id === carreraGuardada || c.nombre === carreraGuardada) opt.selected = true;
                 carreraSelect.appendChild(opt);
             });
-        } catch (e) { console.error("Error cargando carreras.json:", e); }
+        } catch (e) { console.error(e); }
     }
 
+    // Deshabilita trimestre si el trayecto es Inicial
     if (trayectoSelect && trimestreSelect) {
         const gestionarTrayecto = () => {
             if (trayectoSelect.value === 'inicial') {
                 trimestreSelect.disabled = true;
-                trimestreSelect.style.backgroundColor = "#f0f0f0";
                 trimestreSelect.value = ""; 
             } else {
                 trimestreSelect.disabled = false;
-                trimestreSelect.style.backgroundColor = "";
             }
         };
         trayectoSelect.addEventListener('change', gestionarTrayecto);
         gestionarTrayecto();
     }
 
+    // Validación estricta de límites del Índice de Rendimiento Académico
     if (iraInput) {
         iraInput.addEventListener('input', () => {
             let v = parseFloat(iraInput.value);
@@ -894,9 +885,7 @@ async function initAcademicoEdicion() {
     }
 }
 
-/**
- * CONTROL DE RESIDENCIA (Estados y Municipios Dinámicos de Venezuela)
- */
+// Módulo: Localización geopolítica dinámica (Venezuela)
 async function initResidencia() {
     const estadoSelect = document.getElementById('estado_res');
     const municipioSelect = document.getElementById('municipio_res');
@@ -924,9 +913,10 @@ async function initResidencia() {
             actualizarMunicipios(estadoSelect.value, datos, null);
         });
 
-    } catch (e) { console.error("Error cargando extras/venezuela.json:", e); }
+    } catch (e) { console.error(e); }
 }
 
+// Renderiza los municipios vinculados al estado seleccionado
 function actualizarMunicipios(nombreEstado, datos, seleccionado) {
     const municipioSelect = document.getElementById('municipio_res');
     const info = datos.find(e => e.estado === nombreEstado);
@@ -944,9 +934,7 @@ function actualizarMunicipios(nombreEstado, datos, seleccionado) {
     }
 }
 
-/**
- * CÁLCULO DE EDAD AUTOMÁTICO Y SEGURIDAD CREDECIALES
- */
+// Módulo: Validación de contraseñas y cálculo automático de edad
 function initSeguridadEventos() {
     const fNacInput = document.getElementById('f_nac');
     const passInput = document.getElementById('reg_password');
@@ -954,6 +942,7 @@ function initSeguridadEventos() {
     const pregunta = document.getElementById('pregunta_seguridad');
     const respuesta = document.getElementById('respuesta_seguridad');
 
+    // Calcula y setea la edad en base a la fecha de nacimiento
     if (fNacInput) {
         fNacInput.addEventListener('input', function() {
             const hoy = new Date();
@@ -968,6 +957,7 @@ function initSeguridadEventos() {
         });
     }
 
+    // Compara contraseñas en tiempo real y exige campos de seguridad si hay password nueva
     if (passInput && passConfirm) {
         function validarCamposSeguridad() {
             const hasValue = passInput.value.length > 0;
@@ -977,10 +967,8 @@ function initSeguridadEventos() {
 
             if (hasValue && passInput.value !== passConfirm.value) {
                 passConfirm.setCustomValidity("Las contraseñas no coinciden");
-                passConfirm.style.borderColor = "#d32f2f";
             } else {
                 passConfirm.setCustomValidity("");
-                passConfirm.style.borderColor = hasValue ? "#4CAF50" : "#ddd";
             }
         }
         passInput.addEventListener('input', validarCamposSeguridad);
@@ -988,6 +976,7 @@ function initSeguridadEventos() {
     }
 }
 
+// Conmutador visual de texto/password para inputs de contraseñas
 function togglePassword(idInput, btn) {
     const input = document.getElementById(idInput);
     const icon = btn.querySelector('i');

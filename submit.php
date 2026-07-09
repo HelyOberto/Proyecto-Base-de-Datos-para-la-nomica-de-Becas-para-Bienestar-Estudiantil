@@ -4,15 +4,12 @@ require 'base_de_datos/db.php';
 
 header('Content-Type: application/json');
 
-/**
- * Función para generar IDs manuales en tablas donde TiDB no lo hace automáticamente
- * (usuarios y familiar)
- */
+// Generar IDs manuales para tablas por que TiDB no lo hace automático (usuarios y familiar)
 function generarIdManual() {
     return mt_rand(100000, 99999999);
 }
 
-// 1. RECEPCIÓN DE DATOS
+// Captura de datos raw o por POST tradicional
 $raw = file_get_contents('php://input');
 $data = json_decode($raw, true) ?: $_POST;
 
@@ -30,7 +27,7 @@ if (!$estudiante_ci) {
 try {
     $pdo->beginTransaction();
 
-    // --- A. GESTIÓN DE USUARIO (ID MANUAL) ---
+    // Gestión de Usuario (Si no existe, se crea con ID manual)
     $stmt = $pdo->prepare('SELECT usuario_id FROM estudiante WHERE ci = ?');
     $stmt->execute([$estudiante_ci]);
     $user_reg = $stmt->fetch();
@@ -50,15 +47,15 @@ try {
             $data['respuesta_seguridad'] ?? null
         ]);
 
-        // Insert inicial en estudiante para vincular la PK
+        // Vinculamos la PK inicial en la tabla estudiante
         $stmt = $pdo->prepare('INSERT INTO estudiante (ci, usuario_id) VALUES (?, ?)');
         $stmt->execute([$estudiante_ci, $user_id]);
     }
 
-    // --- B. ACTUALIZACIÓN DEL ESTUDIANTE ---
+    // Actualización de los datos del Estudiante
     $carnet = !empty($data['C_Patria']) ? $data['C_Patria'] : "N/A";
     
-    // Cambiamos 'observaciones' por 'comentarios' para capturar el valor real del formulario
+    // Mapeo de comentarios del formulario a la columna observaciones
     $observacionesRaw = isset($data['comentarios']) ? trim($data['comentarios']) : '';
     $obs = ($observacionesRaw !== '') ? $observacionesRaw : "Sin observaciones adicionales.";
 
@@ -93,12 +90,11 @@ try {
         $estudiante_ci
     ]);
 
-    // --- C. RESIDENCIA (INCLUYENDO DIRECCIÓN DE PROCEDENCIA) ---
+    // Actualización de Residencia (Se limpia y se vuelve a insertar)
     $tel_local = !empty($data['tel_local']) ? $data['tel_local'] : "No posee";
 
     $pdo->prepare("DELETE FROM residencia WHERE ci_estudiante = ?")->execute([$estudiante_ci]);
     
-    // Se añade dir_procedencia a la consulta
     $sql_res = "INSERT INTO residencia (ci_estudiante, t_res, t_viv, t_loc, r_prop, estado_res, municipio_res, dir_local, dir_procedencia, tel_local) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $pdo->prepare($sql_res)->execute([
@@ -110,17 +106,16 @@ try {
         $data['estado_res'] ?? null, 
         $data['municipio_res'] ?? null, 
         $data['dir_local'] ?? null, 
-        $data['dir_procedencia'] ?? null, // Nuevo parámetro
+        $data['dir_procedencia'] ?? null, 
         $tel_local
     ]);
 
-    // --- D. FAMILIARES (CON ATRIBUTO DE CLASIFICACIÓN DINÁMICA CORREGIDO) ---
+    // Carga de Familiares usando la estructura dinámica del formulario
     $pdo->prepare("DELETE FROM familiar WHERE ci_estudiante = ?")->execute([$estudiante_ci]);
     
     $estructuraTable = $data['estructura_tabla'] ?? null;
 
     if (!empty($estructuraTable) && is_array($estructuraTable)) {
-        // Inicializamos en 'otros' por prevención si hay filas antes del primer separador
         $grupoClasificacionActual = 'otros'; 
 
         foreach ($estructuraTable as $item) {
@@ -130,7 +125,6 @@ try {
             list($tipo, $identificador) = $partes;
 
             if ($tipo === 'separador') {
-                // Captura: primaria, secundaria o otros
                 $grupoClasificacionActual = !empty($identificador) ? $identificador : 'otros'; 
             } 
             elseif ($tipo === 'fila') {
@@ -149,19 +143,18 @@ try {
                         $data['f_ins_' . $id] ?? null, 
                         $data['f_ocu_' . $id] ?? null, 
                         (float)($data['f_ing_' . $id] ?? 0.00),
-                        $grupoClasificacionActual // Guarda de forma segura la clasificación actual
+                        $grupoClasificacionActual
                     ]);
                 }
             }
         }
     } else {
-        // Fallback preventivo: Si no viene el mapa estructurado, deduce inteligentemente en vez de clavar NULL
+        // Plan B: Si no viene el mapa estructurado, deduce el grupo por parentesco
         foreach ($data as $key => $val) {
             if (strpos($key, 'f_nom_') === 0 && !empty($val)) {
                 $suffix = substr($key, 6);
                 $parentesco = strtolower(trim($data['f_par_'.$suffix] ?? ''));
                 
-                // Deducción básica basada en palabras clave comunes
                 if (in_array($parentesco, ['madre', 'padre', 'mamá', 'papá', 'hermano', 'hermana', 'hijo', 'hija'])) {
                     $clasificacionDeducida = 'primaria';
                 } elseif (in_array($parentesco, ['abuelo', 'abuela', 'tío', 'tía', 'primo', 'prima', 'sobrino', 'sobrina'])) {
@@ -181,13 +174,13 @@ try {
                     $data['f_ins_'.$suffix] ?? null, 
                     $data['f_ocu_'.$suffix] ?? null, 
                     (float)($data['f_ing_'.$suffix] ?? 0.00),
-                    $clasificacionDeducida // Inserción segura de clasificación deducida
+                    $clasificacionDeducida
                 ]);
             }
         }
     }
 
-    // --- E. BITÁCORA (ID AUTOMÁTICO) ---
+    // Registro en la bitácora del sistema
     $sql_bit = "INSERT INTO bitacora (usuario_id, accion, tabla_afectada, detalles) VALUES (?, ?, ?, ?)";
     $pdo->prepare($sql_bit)->execute([
         $user_id, 

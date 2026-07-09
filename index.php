@@ -1,12 +1,11 @@
 <?php
-// index.php unificado
 require 'base_de_datos/db.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Lógica para cerrar sesión manualmente
+// Destruye la sesión actual y manda al usuario a la página de inicio si decide salir del sistema
 if (isset($_GET['logout'])) {
     session_destroy();
     header('Location: index.php');
@@ -16,7 +15,7 @@ if (isset($_GET['logout'])) {
 $logged = isset($_SESSION['user']);
 $studentInfo = null;
 
-// --- LÓGICA DE BÚSQUEDA ---
+// Si el usuario inició sesión y tiene el rol de estudiante, buscamos todo su expediente en la base de datos
 if ($logged && $_SESSION['rol'] === 'estudiante' && isset($_SESSION['user_id'])) {
     try {
         $stmt = $pdo->prepare("SELECT * FROM estudiante WHERE usuario_id = ?");
@@ -26,13 +25,13 @@ if ($logged && $_SESSION['rol'] === 'estudiante' && isset($_SESSION['user_id']))
         if ($studentInfo) {
             $ci = $studentInfo['ci'];
 
-            // Familiares
+            // Buscamos el grupo familiar del estudiante usando su cédula de identidad
             $stmtFam = $pdo->prepare("SELECT * FROM familiar WHERE ci_estudiante = ?");
             $stmtFam->execute([$ci]);
             $studentInfo['familiares'] = $stmtFam->fetchAll(PDO::FETCH_ASSOC);
 
-            // Residencia
-            $stmtRes = $pdo->prepare("SELECT * FROM residencia WHERE ci_estudiante = ?"); // Corregido ci_student por ci_estudiante
+            // Traemos los datos de su lugar de residencia actual
+            $stmtRes = $pdo->prepare("SELECT * FROM residencia WHERE ci_estudiante = ?");
             $stmtRes->execute([$ci]);
             $res = $stmtRes->fetch(PDO::FETCH_ASSOC);
             
@@ -45,7 +44,7 @@ if ($logged && $_SESSION['rol'] === 'estudiante' && isset($_SESSION['user_id']))
                 $studentInfo['dir_local'] = $res['dir_local'];
             }
 
-            // Info Académica
+            // Obtenemos su historial académico, trayecto, trimestre e índices acumulados
             $stmtAcad = $pdo->prepare("SELECT * FROM record_academico WHERE ci_estudiante = ?");
             $stmtAcad->execute([$ci]);
             $ac = $stmtAcad->fetch(PDO::FETCH_ASSOC);
@@ -58,6 +57,7 @@ if ($logged && $_SESSION['rol'] === 'estudiante' && isset($_SESSION['user_id']))
                 $studentInfo['m_ira'] = $ac['ira_anterior'] ?? '0.0';
             }
 
+            // Calculamos automáticamente la edad exacta del estudiante a partir de su fecha de nacimiento
             if (!empty($studentInfo['f_nac'])) {
                 $cumple = new DateTime($studentInfo['f_nac']);
                 $hoy = new DateTime();
@@ -69,7 +69,7 @@ if ($logged && $_SESSION['rol'] === 'estudiante' && isset($_SESSION['user_id']))
     }
 }
 
-// --- VISTA PARA NO LOGUEADOS ---
+// Si la persona no ha iniciado sesión, renderizamos la pantalla de bienvenida o el formulario de ingreso
 if (!$logged) {
 ?>
     <!DOCTYPE html>

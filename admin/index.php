@@ -1,11 +1,10 @@
 <?php
 ob_start();
-session_start(); // Asegúrate de iniciar sesión antes de cualquier chequeo
+session_start(); 
 require '../base_de_datos/db.php';
 
-// --- FUNCIÓN DE BITÁCORA ---
+// Inserta un registro de auditoría en la tabla bitácora
 function registrarMovimiento($pdo, $usuario_id, $accion, $tabla, $detalles = null) {
-    // Quitamos cualquier referencia al 'id' manual
     $sql = 'INSERT INTO bitacora (usuario_id, accion, tabla_afectada, detalles) VALUES (?, ?, ?, ?)';
     $stmt = $pdo->prepare($sql);
     try {
@@ -15,42 +14,37 @@ function registrarMovimiento($pdo, $usuario_id, $accion, $tabla, $detalles = nul
     }
 }
 
-// Prevenir el almacenamiento en caché para seguridad de datos administrativos
+// Evita que el navegador almacene en caché las respuestas de este script
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
 
-// Verificación de sesión y rol de administrador
+// restringe el acceso solo a usuarios autenticados con rol de administrador
 if (!isset($_SESSION['user']) || (isset($_SESSION['rol']) && $_SESSION['rol'] !== 'admin')) {
     header('Location: ../autenticacion/login.php');
     exit;
 }
 
-// Inicialización de variables de estado
 $edit_admin = null;
 $edit_student = null;
 $details = null;
 $msg = $_GET['msg'] ?? null;
 
-// --- LÓGICA: ELIMINAR ESTUDIANTE Y SU CUENTA ---
+// Elimina un estudiante y su cuenta de usuario vinculada usando la cédula
 if (isset($_GET['delete_student'])) {
     try {
         $ci = $_GET['delete_student']; 
         
-        // 1. Obtenemos el usuario_id para no dejar la cuenta de acceso huérfana
         $stmt = $pdo->prepare('SELECT usuario_id FROM estudiante WHERE ci = ?');
         $stmt->execute([$ci]);
         $usuario_id = $stmt->fetchColumn();
 
-        // 2. Borramos al estudiante 
         $stmt_del = $pdo->prepare('DELETE FROM estudiante WHERE ci = ?');
         $stmt_del->execute([$ci]);
 
-        // 3. Ahora borramos la cuenta de acceso en la tabla usuarios
         if ($usuario_id) {
             $pdo->prepare('DELETE FROM usuarios WHERE id = ?')->execute([$usuario_id]);
         }
         
-        // Registro en Bitácora
         registrarMovimiento(
             $pdo, 
             $_SESSION['user_id'], 
@@ -66,16 +60,14 @@ if (isset($_GET['delete_student'])) {
     exit;
 }
 
-// --- LÓGICA: ELIMINAR USUARIO ADMINISTRADOR SECUNDARIO ---
+// Elimina un administrador secundario impidiendo borrar el usuario maestro
 if (isset($_GET['delete_user'])) {
     try {
         $id = (int)$_GET['delete_user'];
-        // No permite borrar al 'admin' maestro por seguridad
         $stmt = $pdo->prepare('DELETE FROM usuarios WHERE id = ? AND usuario != "admin"');
         $stmt->execute([$id]);
         
         if ($stmt->rowCount() > 0) {
-            // Registro en Bitácora
             registrarMovimiento(
                 $pdo, 
                 $_SESSION['user_id'], 
@@ -95,14 +87,13 @@ if (isset($_GET['delete_user'])) {
     exit;
 }
 
-// --- LÓGICA: GUARDAR/ACTUALIZAR ADMINISTRADOR ---
+// Procesa el formulario para crear o actualizar cuentas de administradores
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
     $id = $_POST['id'] ?? null;
     $username = $_POST['usuario_form'] ?? '';
     $password = $_POST['password_form'] ?? '';
     
     if ($id) {
-        // Validación para no editar el usuario maestro 'admin'
         $check = $pdo->prepare('SELECT usuario FROM usuarios WHERE id = ?');
         $check->execute([$id]);
         if ($check->fetchColumn() === 'admin') {
@@ -119,7 +110,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
             $stmt->execute([$username, $id]);
         }
         
-        // Registro en Bitácora
         registrarMovimiento(
             $pdo, 
             $_SESSION['user_id'], 
@@ -129,11 +119,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
         );
         $msg = 'Administrador actualizado';
     } else {
-        // Generamos un ID manual porque la tabla usuarios no tiene auto_increment
         $nuevo_id = mt_rand(100000, 99999999); 
-        $hash = password_hash($password, PASSWORD_BCRYPT); // Usamos BCRYPT para ser compatibles con el login
+        $hash = password_hash($password, PASSWORD_BCRYPT); 
 
-        // IMPORTANTE: Incluimos el 'id' generado manualmente
         $stmt = $pdo->prepare('INSERT INTO usuarios (id, usuario, password, rol) VALUES (?, ?, ?, "admin")');
         $stmt->execute([$nuevo_id, $username, $hash]);
         
@@ -150,16 +138,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_user'])) {
     exit;
 }
 
-// --- CONSULTAS PARA LA VISTA ---
+// Obtiene la lista completa de estudiantes registrados
 $query = "SELECT ci, usuario_id, nombre1, apellido_paterno, carrera, cod_est, ira_anterior 
           FROM estudiante";
 $stmt = $pdo->query($query);
 $estudiantes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Obtiene las cuentas de usuario con rol administrativo
 $query_admins = "SELECT id, usuario FROM usuarios WHERE rol = 'admin'";
 $stmt_admins = $pdo->query($query_admins);
 $administradores = $stmt_admins->fetchAll(PDO::FETCH_ASSOC);
 
+// Recupera los últimos 100 registros de auditoría cruzando datos de usuarios
 $query_bitacora = "SELECT b.id, b.usuario_id, u.usuario, b.accion, b.tabla_afectada, b.detalles, b.fecha 
                     FROM bitacora b 
                     LEFT JOIN usuarios u ON b.usuario_id = u.id 
@@ -167,7 +157,7 @@ $query_bitacora = "SELECT b.id, b.usuario_id, u.usuario, b.accion, b.tabla_afect
 $stmt_bitacora = $pdo->query($query_bitacora);
 $registros_bitacora = $stmt_bitacora->fetchAll(PDO::FETCH_ASSOC);
 
-// --- LÓGICA DE DETALLES Y EDICIÓN (CORREGIDA CON EL ORDEN DE CLASIFICACIÓN) ---
+// Recopila información académica, de residencia y carga familiar ordenada por prioridades
 if (isset($_GET['view_details'])) {
     $ci = $_GET['view_details'];
     $stmt = $pdo->prepare("SELECT * FROM estudiante WHERE ci = ?");
@@ -178,7 +168,6 @@ if (isset($_GET['view_details'])) {
     $stmt->execute([$ci]);
     $residencia = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Mantenemos el orden posicional estricto por clasificación para el renderizado
     $stmt = $pdo->prepare("SELECT * FROM familiar WHERE ci_estudiante = ? ORDER BY FIELD(f_clasificacion, 'primaria', 'secundaria', 'otros'), id ASC");
     $stmt->execute([$ci]);
     $familiares = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -186,6 +175,7 @@ if (isset($_GET['view_details'])) {
     $details = ['base' => $base, 'residencia' => $residencia, 'familiares' => $familiares];
 }
 
+// Busca los datos base de un estudiante para cargar el formulario de edición
 if (isset($_GET['edit_student'])) {
     $ci_edit = $_GET['edit_student'];
     $stmt = $pdo->prepare("SELECT * FROM estudiante WHERE ci = ?");
@@ -193,6 +183,7 @@ if (isset($_GET['edit_student'])) {
     $edit_student = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+// Consulta la cuenta de un administrador secundario para cargar el formulario de edición
 if (isset($_GET['edit_user'])) {
     $stmt = $pdo->prepare('SELECT id, usuario FROM usuarios WHERE id = ? AND usuario != "admin" AND rol = "admin"');
     $stmt->execute([$_GET['edit_user']]);
@@ -689,7 +680,7 @@ if (isset($_GET['edit_user'])) {
     <?php endif; ?>
 
     <script>
-
+        // Alterna la visibilidad del texto de la contraseña y cambia el icono.
         function togglePassword(idInput, btn) {
             const input = document.getElementById(idInput);
             const icon = btn.querySelector('i');
@@ -702,7 +693,7 @@ if (isset($_GET['edit_user'])) {
             }
         }
 
-        // Función para cambiar entre pestañas
+        // Oculta los contenedores de pestañas activos y resalta el seleccionado.
         function openTab(tabId, btn) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -710,16 +701,14 @@ if (isset($_GET['edit_user'])) {
             document.getElementById(tabId).classList.add('active');
             if(btn) btn.classList.add('active');
             
-            // Guardamos en el navegador cuál está abierta
+            // Almacena el identificador de la pestaña activa en el almacenamiento local.
             localStorage.setItem('activeTab', tabId);
         }
 
-        // Al cargar la página, restauramos la pestaña guardada
+        // Recupera la última pestaña visitada al cargar la interfaz si no se están consultando detalles.
         document.addEventListener("DOMContentLoaded", function() {
             const savedTab = localStorage.getItem('activeTab');
             
-            // Si hay una pestaña guardada (y no estamos viendo detalles de un estudiante)
-            // la abrimos automáticamente.
             if (savedTab && !window.location.search.includes('view_details')) {
                 const targetBtn = document.querySelector(`button[onclick*="${savedTab}"]`);
                 if (targetBtn) {
@@ -728,6 +717,7 @@ if (isset($_GET['edit_user'])) {
             }
         });
 
+        // Muestra u oculta el contenedor del formulario de administración.
         function toggleAdminForm() {
             const form = document.getElementById('admin-form-container');
             form.style.display = (form.style.display === 'none') ? 'block' : 'none';

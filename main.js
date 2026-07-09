@@ -1,3 +1,5 @@
+
+// Espera a que el contenido del DOM cargue para mostrar el HTML
 document.addEventListener('DOMContentLoaded', () => {
     // Inicializa los pasos iniciales
     let currentStep = 1;
@@ -22,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.formDataStorage = {}; 
 
-    // Carpetas de cada paso
     const folderMap = {
         1: "identificacion",
         2: "residencia",
@@ -157,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
             }
         } finally {
-            // Quita clase de carga
             setTimeout(() => { 
                 if(viewPort) viewPort.classList.remove('loading'); 
             }, 150);
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const errorText = document.getElementById('error-pass'); 
 
                 inputs.forEach(input => {
-                    // Limpiamos el formulario visualmente y dentrode la memoria
+                    // Limpiamos el formulario visualmente y dentro de la memoria
                     if (input.type === 'checkbox' || input.type === 'radio') {
                         input.checked = false;
                     } else {
@@ -192,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     input.style.borderColor = '#ddd';
                 });
 
-                // Si hubo un error lo quitamos
                 if (errorText) {
                     errorText.style.display = 'none';
                 }
@@ -203,21 +202,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
     }
-    /**
-     * Lógica para el botón "Volver al Inicio" con verificación
-     */
+    // Maneja el botón de salida y se asegura de que el usuario no pierda lo que ha escrito por accidente
     const btnVolver = document.getElementById('btnVolverInicio');
     if (btnVolver) {
         btnVolver.onclick = (e) => {
-            // Si el formulario ya se envió (paso 7) o está en el primer paso vacío, no preguntamos
+            // Si el formulario ya se mandó o estamos en la pantalla final, no hace falta preguntar
             if (window.formSubmitted || currentStep >= 7) {
                 return true;
             }
 
-            // Si hay datos, pedimos confirmación
+            // Si hay datos a mitad de camino, le advertimos que perderá el progreso
             const confirmacion = confirm("¿Estás seguro de que quieres salir? Se perderá el progreso que no haya sido guardado en el sistema.");
 
-            // Cancela el redireccionamiento a index.php
+            // Si el usuario se arrepiente, frenamos el redireccionamiento a index.php
             if (!confirmacion) {
                 e.preventDefault(); 
             }
@@ -225,9 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    /**
-     * Muestra el perfil completo y oculta toda la interfaz de formulario.
-     */
+    // Carga el perfil completo del estudiante desde el servidor y oculta los pasos del formulario
     async function showRegistrationSummary() {
         const sp = window.studentProfile;
         if (!sp || !viewPort) return;
@@ -237,9 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error("No se pudo cargar la vista");
             let html = await response.text();
 
-            // ... (lógica de reemplazos {{...}} se mantiene igual) ...
-
-            // Insertamos directamente en el viewport para que no se pierda el diseño
+            // Lo metemos directo en el contenedor principal para mantener la estructura y subimos la pantalla
             viewPort.innerHTML = html;
             window.scrollTo(0, 0);
 
@@ -249,23 +242,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Funcion general engargada la validación de los datos marcados en "required" y marcarlos al usuario de ser necesario
+    // Revisa todos los campos obligatorios (required) del paso actual y les avisa si falta algo
     function validarFormularioActual() {
         const viewPort = document.getElementById('dynamic-content');
         const nextBtn = document.getElementById('nextBtn');
         if (!viewPort || !nextBtn) return;
 
-        // Buscamos todos los campos que tengan el atributo 'required'
+        // Agarramos todo lo que tenga la etiqueta obligatoria para revisarlo uno por uno
         const inputs = viewPort.querySelectorAll('input[required], select[required], textarea[required]');
         let todoValido = true;
 
         inputs.forEach(input => {
-            // Función para marcar error
+            // Esta función pinta los errores visualmente si el campo está vacío
             const checkValidity = () => {
                 let esValido = true;
                 
                 if (input.type === 'checkbox' || input.type === 'radio') {
-                    // Para radio/checkbox, verificamos que alguno del mismo nombre esté marcado
+                    // Para casillas y opciones, nos aseguramos de que al menos una esté marcada
                     const group = viewPort.querySelectorAll(`input[name="${input.name}"]`);
                     esValido = Array.from(group).some(i => i.checked);
                 } else {
@@ -273,33 +266,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (!esValido) {
-                    input.style.borderColor = '#d9534f'; // Rojo
+                    input.style.borderColor = '#d9534f';
                     input.style.backgroundColor = '#fff8f8';
                     todoValido = false;
                 } else {
-                    input.style.borderColor = ''; // Restaurar
+                    input.style.borderColor = '';
                     input.style.backgroundColor = '';
                 }
                 
-                // Re-evaluar el estado del botón cada vez que se escribe
+                // Volvemos a revisar el botón de siguiente con cada letra que escriba el usuario
                 actualizarEstadoBoton();
             };
 
-            // Escuchar eventos para validar mientras el usuario escribe o cambia
+            // Escuchamos cuando el usuario escribe o cambia de opción para validar en tiempo real
             input.removeEventListener('input', checkValidity);
             input.removeEventListener('change', checkValidity);
             input.addEventListener('input', checkValidity);
             input.addEventListener('change', checkValidity);
             
-            // Validación inicial
+            // Primera revisión rápida al cargar la página para saber si arranca vacío
             if (input.type !== 'checkbox' && input.type !== 'radio' && input.value.trim() === "") {
                 todoValido = false;
             }
         });
 
+        // Activa o desactiva el botón de siguiente según cómo vaya la validación
         function actualizarEstadoBoton() {
 
-            // Si el paso actual ha marcado el botón como bloqueado por lógica de negocio
+            // Si por alguna regla interna del negocio el botón debe estar bloqueado a la fuerza
             if (nextBtn.dataset.locked === "true") {
                 nextBtn.disabled = true;
                 nextBtn.style.opacity = "0.5";
@@ -316,6 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             
+            // Cambiamos el aspecto del botón (candado, opacidad y cursor) para que se note si está bloqueado o no
             nextBtn.disabled = !actualValido;
             nextBtn.style.opacity = actualValido ? "1" : "0.5";
             nextBtn.style.cursor = actualValido ? "pointer" : "not-allowed";
@@ -324,56 +319,49 @@ document.addEventListener('DOMContentLoaded', () => {
         actualizarEstadoBoton();
     }
 
-    /**
-     * Gestiona la visibilidad y estados de los elementos de navegación
-     */
+    // Se encarga de cambiar el aspecto de la página (botones que aparecen y desaparecen) según el paso donde estemos
     function actualizarInterfaz(step) {
-    // 1. Barra de progreso
-    if (progressBar) {
-        progressBar.style.width = `${(step / totalSteps) * 100}%`;
-    }
-
-    // --- GESTIÓN DE BOTONES DE VOLVER ---
-    const btnVolverCabecera = document.getElementById('btnVolverInicio');
-    if (btnVolverCabecera) {
-        // Si el paso es 7 (Final), OCULTAMOS el botón verde de la esquina
-        if (step >= 7) {
-            btnVolverCabecera.style.display = 'none'; 
-        } else {
-            btnVolverCabecera.style.display = 'flex';
+        // Hace que la barra azul se llene proporcionalmente a los pasos
+        if (progressBar) {
+            progressBar.style.width = `${(step / totalSteps) * 100}%`;
         }
-    }
 
-    const prevBtn = document.getElementById('prevBtn');
+        // Controla el botón verde de volver que está en la esquina
+        const btnVolverCabecera = document.getElementById('btnVolverInicio');
+        if (btnVolverCabecera) {
+            // Si ya terminamos el registro, escondemos este botón para no confundir
+            if (step >= 7) {
+                btnVolverCabecera.style.display = 'none'; 
+            } else {
+                btnVolverCabecera.style.display = 'flex';
+            }
+        }
+
+        // El botón de regresar no debe existir ni al principio ni al final del todo
+        const prevBtn = document.getElementById('prevBtn');
         if (prevBtn) {
-            // No hay "Atrás" en el paso 1 ni en el paso final (7)
             prevBtn.style.display = (step <= 1 || step >= 7) ? 'none' : 'inline-block';
         }
 
-        // --- GESTIÓN DEL BOTÓN DE LIMPIEZA ---
+        // El botón de limpiar solo sirve en los primeros pasos, más adelante ya no hace falta borrar todo
         const btnLimpiar = document.getElementById('btnLimpiarRegistro');
         if (btnLimpiar) {
-            // Se oculta en Verificación (6) y Pantalla Final (7)
             btnLimpiar.style.display = (step >= 4) ? 'none' : 'block';
         }
 
-        // --- GESTIÓN DEL BOTÓN SIGUIENTE ---
+        // Cambia el texto del botón principal según lo que toque hacer
         const nextBtn = document.getElementById('nextBtn');
         if (nextBtn) {
-            // En el paso 6 (Verificación), el texto cambia a Confirmar
+            // Si es el penúltimo paso cambia a "Confirmar", y en la pantalla de éxito se oculta por completo
             nextBtn.textContent = (step === 6) ? "Confirmar" : "Siguiente";
-            
-            // Se oculta en la pantalla final (7)
             nextBtn.style.display = (step >= 7) ? 'none' : 'inline-block';
             
-            // Ejecutar validación inicial al cargar el paso
+            // Obligamos a revisar los campos obligatorios apenas se renderice la nueva pantalla
             validarFormularioActual(); 
         }
     }
 
-    /**
-     * Manejador del botón "Siguiente" / "Confirmar"
-     */
+    // Controla la acción del botón principal, ya sea para avanzar de pantalla o enviar los datos definitivos
     const nextBtnEl = document.getElementById('nextBtn');
     if (nextBtnEl) {
         nextBtnEl.type = 'button'; 
@@ -384,13 +372,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.stopPropagation();
             }
 
-            // Validación manual del paso 1 si existe la función
+            // Validación manual para asegurar que el primer paso esté correcto antes de continuar
             if (currentStep === 1 && typeof validarPaso1 === 'function' && !validarPaso1()) return false;
 
-            // Guardamos lo que haya en los inputs actuales antes de movernos o enviar
+            // Guardamos el progreso actual en la memoria global antes de cambiar de pantalla
             window.saveCurrentData();
 
-            // --- BLOQUE DE ENVÍO FINAL (PASO 6) ---
+            // Si estamos en la última pantalla de revisión, procesamos el envío al servidor
             if (currentStep === 6) {
                 nextBtnEl.disabled = true;
                 nextBtnEl.textContent = "Procesando...";
@@ -418,16 +406,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     const obj = JSON.parse(textoRespuesta);
                     
                     if (obj.status === 'ok') {
-                        // ¡LOGRADO! 
                         window.formSubmitted = true;
-                        currentStep = 7; // Saltamos al paso final
-                        loadStep(7);     // Cargamos la vista de éxito
-                        return;          // IMPORTANTE: Salimos de la función aquí
+                        currentStep = 7; 
+                        loadStep(7);     
+                        return;          
                     } else {
                         alert("Error del servidor: " + (obj.error || "Desconocido"));
                         nextBtnEl.disabled = false;
                         nextBtnEl.textContent = "Confirmar";
-                        return; // No avanzamos si hay error
+                        return; 
                     }
 
                 } catch (err) {
@@ -439,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // --- NAVEGACIÓN NORMAL (Pasos 1 al 5) ---
+            // Flujo de navegación normal para avanzar entre las pantallas iniciales
             if (currentStep < 6) {
                 currentStep++;
                 loadStep(currentStep);
@@ -447,10 +434,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // Controla el botón de retroceso guardando los datos actuales para no perder lo que se hizo en la pantalla
     const prevBtnEl = document.getElementById('prevBtn');
     if (prevBtnEl) {
         prevBtnEl.onclick = (e) => {
-            // Bloqueamos la recarga también en el botón de retroceso
             e.preventDefault(); 
             window.saveCurrentData();
             currentStep--;
@@ -458,6 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
+    // Actualiza el menú lateral bloqueando los pasos siguientes que el usuario aún no ha alcanzado
     function updateMenuState(step) {
         const links = document.querySelectorAll('#slideMenuSPA a[data-step]');
         links.forEach(a => {

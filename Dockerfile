@@ -1,15 +1,14 @@
-# 1. Usamos una imagen oficial de PHP con Apache
+# Imagen oficial de PHP en el server de Apache
 FROM php:8.2-apache
 
-# 2. Instalamos las extensiones necesarias para MySQL/TiDB
-# Esto es vital para que PDO funcione en el servidor
+# Instalamos las herramientas que le permiten a PHP conectarse a la base de datos mediante PDO
 RUN docker-php-ext-install pdo pdo_mysql
 
-# 3. Copiamos todos los archivos de tu carpeta actual al servidor de Apache
+# Mueve el proyecto donde Apache pueda encontrarlo (Sino no sirve)
 COPY . /var/www/html/
 
-# 4. Le damos permisos a Apache para leer tus archivos
+# Le damos los permisos al servidor web para que pueda usar el proyecto
 RUN chown -R www-data:www-data /var/www/html/
 
-# 5. Exponemos el puerto 80 (el estándar web)
+# Contenedor que escucha las peticiones del puerto web
 EXPOSE 80

