@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Cuando el usuario retrocede, este de encarga de poner rellemar mieva,emte la informacion
+    // Cuando el usuario retrocede, este de encarga de rellenar nuevamente la informacion
     window.restoreDataGlobal = () => {
         const viewPort = document.getElementById('dynamic-content');
         const inputs = viewPort.querySelectorAll('input, select, textarea');
